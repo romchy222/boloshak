@@ -7,6 +7,7 @@ BolashakBot is a bilingual (Russian/Kazakh) chatbot system designed for Kyzylord
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Widget design requirements: Minimal, clean layout matching university website style (white background, gray/black text, no bright accent colors).
 
 ## System Architecture
 

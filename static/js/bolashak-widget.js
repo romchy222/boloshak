@@ -40,10 +40,10 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -52,14 +52,14 @@
         }
         
         .bolashak-widget-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            border-color: #a0aec0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
         .bolashak-widget-button svg {
             width: 24px;
             height: 24px;
-            fill: white;
+            fill: #4a5568;
         }
         
         .bolashak-widget-notification {
@@ -122,12 +122,13 @@
         }
         
         .bolashak-widget-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #ffffff;
+            color: #2d3748;
             padding: 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .bolashak-widget-header-info {
@@ -139,11 +140,18 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 12px;
+        }
+        
+        .bolashak-widget-avatar svg {
+            width: 20px;
+            height: 20px;
+            fill: #4a5568;
         }
         
         .bolashak-widget-title {
@@ -161,7 +169,7 @@
         .bolashak-widget-close {
             background: none;
             border: none;
-            color: white;
+            color: #718096;
             cursor: pointer;
             padding: 4px;
             border-radius: 4px;
@@ -169,7 +177,8 @@
         }
         
         .bolashak-widget-close:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: #f7fafc;
+            color: #4a5568;
         }
         
         .bolashak-widget-messages {
@@ -202,7 +211,7 @@
         }
         
         .bolashak-widget-message.user .bolashak-widget-message-content {
-            background: #667eea;
+            background: #4a5568;
             color: white;
             border-bottom-right-radius: 4px;
         }
@@ -279,14 +288,14 @@
         }
         
         .bolashak-widget-input-field:focus {
-            border-color: #667eea;
+            border-color: #4a5568;
         }
         
         .bolashak-widget-send {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #667eea;
+            background: #4a5568;
             border: none;
             color: white;
             cursor: pointer;
@@ -297,7 +306,7 @@
         }
         
         .bolashak-widget-send:hover:not(:disabled) {
-            background: #5a67d8;
+            background: #2d3748;
         }
         
         .bolashak-widget-send:disabled {
@@ -315,8 +324,12 @@
         }
         
         .bolashak-widget-powered a {
-            color: #667eea;
+            color: #4a5568;
             text-decoration: none;
+        }
+        
+        .bolashak-widget-powered a:hover {
+            color: #2d3748;
         }
         
         @media (max-width: 480px) {
