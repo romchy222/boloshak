@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}BolashakBot - Ваш помощник по поступлению{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="row min-vh-100 align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Добро пожаловать в<br>
+                    <span class="text-primary">Университет Болашак</span>
+                </h1>
+                <p class="lead mb-4">
+                    QabyldauBot поможет вам получить всю необходимую информацию о поступлении, 
+                    специальностях и документах. Задавайте вопросы на русском или казахском языке!
+                </p>
+                <div class="d-flex gap-3 mb-4">
+                    <div class="feature-item">
+                        <i class="fas fa-clock text-primary"></i>
+                        <span>24/7 поддержка</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-language text-primary"></i>
+                        <span>2 языка</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-bolt text-primary"></i>
+                        <span>Быстрые ответы</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-lg" onclick="toggleChat()">
+                    <i class="fas fa-comments me-2"></i>
+                    Начать общение
+                </button>
+            </div>
+            <div class="col-lg-6">
+                <div class="university-info">
+                    <div class="card bg-dark border-secondary">
+                        <div class="card-body">
+                            <h3 class="card-title">
+                                <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                О университете
+                            </h3>
+                            <p class="card-text">
+                                Кызылординский университет "Болашак" - ведущее высшее учебное заведение, 
+                                предлагающее качественное образование по различным специальностям.
+                            </p>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-number">15+</div>
+                                    <div class="stat-label">Факультетов</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">50+</div>
+                                    <div class="stat-label">Специальностей</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">5000+</div>
+                                    <div class="stat-label">Студентов</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">200+</div>
+                                    <div class="stat-label">Преподавателей</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Widget -->
+<div id="chatWidget" class="chat-widget">
+    <div class="chat-header">
+        <div class="chat-header-info">
+            <i class="fas fa-robot me-2"></i>
+            <span>QabyldauBot</span>
+        </div>
+        <div class="chat-controls">
+            <select id="languageSelect" class="form-select form-select-sm me-2">
+                <option value="ru">Русский</option>
+                <option value="kz">Қазақша</option>
+            </select>
+            <button class="btn btn-sm btn-outline-light" onclick="clearChat()">
+                <i class="fas fa-trash"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-light" onclick="toggleChat()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <div class="message bot-message">
+            <div class="message-content">
+                <strong>QabyldauBot:</strong> Здравствуйте! Я помогу вам с вопросами о поступлении в университет Болашак. Задавайте любые вопросы!
+            </div>
+            <div class="message-time">Сейчас</div>
+        </div>
+    </div>
+    
+    <div class="chat-input-container">
+        <div class="input-group">
+            <input type="text" id="chatInput" class="form-control" 
+                   placeholder="Введите ваш вопрос..." 
+                   onkeypress="handleKeyPress(event)">
+            <button class="btn btn-primary" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div id="typingIndicator" class="typing-indicator" style="display: none;">
+        <div class="message bot-message">
+            <div class="message-content">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Toggle Button -->
+<button id="chatToggle" class="chat-toggle-btn" onclick="toggleChat()">
+    <i class="fas fa-comments"></i>
+</button>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat-widget.js') }}"></script>
+{% endblock %}
