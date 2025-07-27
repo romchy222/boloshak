@@ -1,5 +1,20 @@
 /* Custom styles for BolashakBot */
 
+
+::-webkit-input-placeholder { /* WebKit browsers */
+    color:    #000000;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:    #000000;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:    #000000;
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:    #000000;
+}
+
+
 /* Hero section */
 .hero-section {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
