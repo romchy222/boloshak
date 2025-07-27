@@ -1,3 +1,4 @@
+
 /**
  * BolashakBot Chat Widget
  * Встраиваемый чат-виджет для сайта университета
@@ -17,7 +18,7 @@
         welcomeMessage: 'Здравствуйте! Я BolashakBot, ваш помощник по вопросам поступления. Как я могу помочь?'
     };
 
-    // Стили виджета (скопированы из style.css)
+    // Полные стили виджета
     const widgetStyles = `
         /* CSS переменные */
         :root {
@@ -90,14 +91,13 @@
             box-shadow: 0 6px 20px rgba(74, 108, 247, 0.5);
         }
 
-        /* быстрые слова */
+        /* Быстрые ответы */
         .quick-replies-container {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
         }
 
-        /* Стрелки - меньшие и более тонкие */
         .scroll-btn {
             border: none;
             font-size: 14px;
@@ -109,6 +109,8 @@
             align-items: center;
             justify-content: center;
             transition: background 0.2s, transform 0.2s;
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
         }
 
         .scroll-btn:hover {
@@ -116,33 +118,32 @@
             transform: scale(1.1);
         }
 
-        /* Основной контейнер для быстрых ответов - чуть меньше */
         #quickReplies {
             display: flex;
             overflow-x: auto;
-            scrollbar-width: none; /* скрытая полоса Firefox */
+            scrollbar-width: none;
             -webkit-overflow-scrolling: touch;
-            width: calc(100% - 70px); /* чуть меньше, чтобы было чуть больше места для стрелок */
+            width: calc(100% - 70px);
             padding: 4px 0;
         }
 
-        /* скрываем полосу прокрутки в Chrome/Safari */
         #quickReplies::-webkit-scrollbar {
             display: none;
         }
 
-        /* Быстрые ответы — стиль с прозрачным синим фоном и меньшим размером */
         .quick-reply {
             flex: 0 0 auto;
-            background-color: rgb(0 123 255);
+            background-color: rgba(0, 123, 255, 0.1);
+            color: #007bff;
             padding: 6px 10px;
             margin-right: 6px;
             border-radius: 15px;
             cursor: pointer;
-            font-size: 12px; /* чуть меньше текста */
+            font-size: 12px;
             white-space: nowrap;
             user-select: none;
             transition: background 0.2s, transform 0.2s;
+            border: 1px solid rgba(0, 123, 255, 0.2);
         }
 
         .quick-reply:hover {
@@ -163,7 +164,7 @@
 
         .chat-header-info {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             font-weight: 600;
             font-size: 16px;
         }
@@ -173,14 +174,15 @@
             margin-right: 8px;
         }
 
-        @keyframes pulse{
-        0%, 100%{
-            opacity:0.9;
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.9;
+            }
+            50% {
+                opacity: 0.3;
+            }
         }
-        50% {
-            opacity: 0.3;
-         }
-        }
+
         .chat-header-status {
             display: flex;
             align-items: center;
@@ -214,17 +216,18 @@
             transition: background var(--transition);
         }
 
-        /* Исправление читаемости для select */
         .chat-controls select {
             color: #ffffff;
-            background: rgb(100 124 229);
+            background: rgba(100, 124, 229, 0.8);
             padding: 4px 8px;
         }
+
         .chat-controls button {
             color: var(--color-text-light);
             padding: 3px 8px;
             cursor: pointer;
         }
+
         .chat-controls button:hover {
             background: rgba(255, 255, 255, 0.3);
         }
@@ -237,7 +240,6 @@
             background: #FAFBFC;
         }
 
-        /* Общий стиль для сообщения */
         .message {
             margin-bottom: 16px;
             animation: fadeInUp 0.3s ease;
@@ -257,23 +259,23 @@
             max-width: 85%;
         }
 
-        /* Бот */
         .bot-message {
             display: flex;
             justify-content: flex-start;
             flex-direction: column;
         }
+
         .bot-message .message-content {
             background: var(--bg-light);
             color: var(--color-text-dark);
             border-bottom-left-radius: 6px;
         }
 
-        /* Пользователь */
         .user-message {
             display: flex;
             justify-content: flex-end;
         }
+
         .user-message .message-content {
             background: var(--primary-color);
             color: var(--color-text-light);
@@ -286,10 +288,12 @@
             opacity: 0.7;
             margin-top: 4px;
         }
+
         .bot-message .message-time {
             color: var(--color-muted);
             text-align: left;
         }
+
         .user-message .message-time {
             color: rgba(255, 255, 255, 0.7);
             text-align: right;
@@ -305,6 +309,7 @@
         .chat-input-container .input-group {
             display: flex;
             align-items: center;
+            gap: 8px;
         }
 
         .chat-input-container input {
@@ -323,12 +328,6 @@
             border-color: #898989;
         }
 
-        .fa-user{
-            display:flex !important;
-            justify-content:flex-end !important;
-        }
-
-        /* Исправление читаемости для placeholder */
         .chat-input-container input::placeholder {
             color: #6c757d;
             opacity: 1;
@@ -340,6 +339,7 @@
             border-radius: 50%;
             background: var(--primary-color);
             color: var(--color-text-light);
+            border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -351,11 +351,17 @@
             background: var(--secondary-color);
         }
 
+        .chat-input-container button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
         /* Индикатор набора */
         .typing-indicator {
             padding: 0 20px 16px;
             background: #FAFBFC;
         }
+
         .typing-dots {
             display: flex;
             gap: 4px;
@@ -366,6 +372,7 @@
             max-width: 85%;
             align-items: center;
         }
+
         .typing-dots span {
             width: 8px;
             height: 8px;
@@ -373,6 +380,7 @@
             background: var(--color-muted);
             animation: typing 1.4s infinite ease-in-out;
         }
+
         .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
         .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
 
@@ -414,34 +422,41 @@
             background: var(--bg-dark);
             border-color: #495057;
         }
+
         [data-bs-theme="dark"] .chat-messages {
             background: #343a40;
         }
+
         [data-bs-theme="dark"] .message-content {
             background: #495057;
             color: var(--color-text-light);
         }
+
         [data-bs-theme="dark"] .bot-message .message-content {
             background: #0d47a1;
         }
+
         [data-bs-theme="dark"] .chat-input-container {
             background: var(--bg-dark);
             border-color: #495057;
         }
+
         [data-bs-theme="dark"] .chat-controls select {
             color: #fff;
             background: #343a40;
         }
+
         [data-bs-theme="dark"] .chat-input-container input {
             color: #fff;
             background: #343a40;
             border-color: #495057;
         }
+
         [data-bs-theme="dark"] .chat-input-container input::placeholder {
             color: #b0b0b0;
         }
 
-        /* Устаревшие стили виджета для совместимости */
+        /* Стили совместимости для внешнего виджета */
         .bolashak-widget {
             position: fixed;
             z-index: 10000;
@@ -760,11 +775,18 @@
     // Класс виджета чат-бота Болашак
     class BolashakWidget {
         constructor(config = {}) {
-            // Объединение конфигурации по умолчанию с пользовательской
             this.config = { ...WIDGET_CONFIG, ...config };
-            this.isOpen = false;        // Состояние виджета (открыт/закрыт)
-            this.messages = [];         // Массив сообщений чата
-            this.init();               // Инициализация виджета
+            this.isOpen = false;
+            this.messages = [];
+            this.quickReplies = [
+                "Как поступить?",
+                "Стоимость обучения",
+                "Документы для поступления",
+                "Специальности",
+                "Контакты",
+                "Сроки подачи документов"
+            ];
+            this.init();
         }
 
         init() {
@@ -772,6 +794,7 @@
             this.createWidget();
             this.bindEvents();
             this.showWelcomeMessage();
+            this.createQuickReplies();
         }
 
         injectStyles() {
@@ -782,85 +805,79 @@
 
         createWidget() {
             const widget = document.createElement('div');
-            widget.className = `bolashak-widget ${WIDGET_CONFIG.position}`;
+            widget.className = 'chat-widget';
             widget.innerHTML = `
-                <div class="bolashak-widget-chat">
-                    <div class="bolashak-widget-header">
-                        <div class="bolashak-widget-header-info">
-                            <div class="bolashak-widget-avatar">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 21H5V3H15V9H19Z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="bolashak-widget-title">BolashakBot</div>
-                                <div class="bolashak-widget-status">В сети • Отвечает быстро</div>
-                            </div>
-                        </div>
-                        <button class="bolashak-widget-close">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                            </svg>
-                        </button>
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <div><i class="fas fa-robot"></i>BolashakBot</div>
+                        <div class="chat-header-status">В сети • Отвечает быстро</div>
                     </div>
-                    <div class="bolashak-widget-messages">
-                        <div class="bolashak-widget-typing">
-                            <div class="bolashak-widget-typing-dots">
-                                <div class="bolashak-widget-typing-dot"></div>
-                                <div class="bolashak-widget-typing-dot"></div>
-                                <div class="bolashak-widget-typing-dot"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bolashak-widget-input">
-                        <form class="bolashak-widget-input-form">
-                            <input type="text" class="bolashak-widget-input-field" placeholder="Введите ваш вопрос..." maxlength="500">
-                            <button type="submit" class="bolashak-widget-send">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
-                                </svg>
-                            </button>
-                        </form>
-                    </div>
-                    <div class="bolashak-widget-powered">
-                        Работает на <a href="#" target="_blank">BolashakBot AI</a>
+                    <div class="chat-controls">
+                        <select id="languageSelect">
+                            <option value="ru">Русский</option>
+                            <option value="kz">Қазақша</option>
+                        </select>
+                        <button onclick="this.closest('.chat-widget').remove()">✕</button>
                     </div>
                 </div>
-                <button class="bolashak-widget-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4C22,2.89 21.1,2 20,2Z"/>
-                    </svg>
-                    <div class="bolashak-widget-notification">1</div>
-                </button>
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Сообщения будут добавляться здесь -->
+                </div>
+                <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                <div class="quick-replies-container">
+                    <button class="scroll-btn" onclick="scrollQuickReplies('left')">‹</button>
+                    <div id="quickReplies"></div>
+                    <button class="scroll-btn" onclick="scrollQuickReplies('right')">›</button>
+                </div>
+                <div class="chat-input-container">
+                    <div class="input-group">
+                        <input type="text" id="chatInput" placeholder="Введите ваш вопрос..." maxlength="500">
+                        <button id="sendButton">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
             `;
 
+            // Создаем кнопку переключения
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'chat-toggle-btn';
+            toggleBtn.innerHTML = '<i class="fas fa-comments"></i>';
+            
             document.body.appendChild(widget);
+            document.body.appendChild(toggleBtn);
+            
             this.widget = widget;
-            this.chatContainer = widget.querySelector('.bolashak-widget-chat');
-            this.messagesContainer = widget.querySelector('.bolashak-widget-messages');
-            this.typingIndicator = widget.querySelector('.bolashak-widget-typing');
-            this.inputField = widget.querySelector('.bolashak-widget-input-field');
-            this.sendButton = widget.querySelector('.bolashak-widget-send');
-            this.notification = widget.querySelector('.bolashak-widget-notification');
+            this.toggleBtn = toggleBtn;
+            this.messagesContainer = widget.querySelector('#chatMessages');
+            this.typingIndicator = widget.querySelector('#typingIndicator');
+            this.inputField = widget.querySelector('#chatInput');
+            this.sendButton = widget.querySelector('#sendButton');
+            this.quickRepliesContainer = widget.querySelector('#quickReplies');
+        }
+
+        createQuickReplies() {
+            this.quickRepliesContainer.innerHTML = '';
+            this.quickReplies.forEach(reply => {
+                const replyBtn = document.createElement('div');
+                replyBtn.className = 'quick-reply';
+                replyBtn.textContent = reply;
+                replyBtn.onclick = () => this.sendQuickReply(reply);
+                this.quickRepliesContainer.appendChild(replyBtn);
+            });
         }
 
         bindEvents() {
-            // Открытие/закрытие чата
-            this.widget.querySelector('.bolashak-widget-button').addEventListener('click', () => {
-                this.toggleChat();
-            });
-
-            this.widget.querySelector('.bolashak-widget-close').addEventListener('click', () => {
-                this.closeChat();
-            });
-
-            // Отправка сообщений
-            this.widget.querySelector('.bolashak-widget-input-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.sendMessage();
-            });
-
-            // Enter для отправки
+            this.toggleBtn.addEventListener('click', () => this.toggleChat());
+            
+            this.sendButton.addEventListener('click', () => this.sendMessage());
+            
             this.inputField.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -868,69 +885,66 @@
                 }
             });
 
-            // Закрытие при клике вне виджета
-            document.addEventListener('click', (e) => {
-                if (!this.widget.contains(e.target) && this.isOpen) {
-                    this.closeChat();
+            // Глобальные функции для быстрых ответов
+            window.scrollQuickReplies = (direction) => {
+                const container = this.quickRepliesContainer;
+                const scrollAmount = 100;
+                if (direction === 'left') {
+                    container.scrollLeft -= scrollAmount;
+                } else {
+                    container.scrollLeft += scrollAmount;
                 }
-            });
+            };
         }
 
         toggleChat() {
+            this.isOpen = !this.isOpen;
             if (this.isOpen) {
-                this.closeChat();
+                this.widget.classList.add('active');
+                this.toggleBtn.style.display = 'none';
+                this.inputField.focus();
             } else {
-                this.openChat();
+                this.widget.classList.remove('active');
+                this.toggleBtn.style.display = 'flex';
             }
         }
 
-        openChat() {
-            this.isOpen = true;
-            this.chatContainer.classList.add('open');
-            this.inputField.focus();
-            this.hideNotification();
-        }
-
-        closeChat() {
-            this.isOpen = false;
-            this.chatContainer.classList.remove('open');
-        }
-
-        showNotification() {
-            this.notification.style.display = 'flex';
-        }
-
-        hideNotification() {
-            this.notification.style.display = 'none';
+        sendQuickReply(text) {
+            this.inputField.value = text;
+            this.sendMessage();
         }
 
         showWelcomeMessage() {
             setTimeout(() => {
                 this.addMessage('bot', WIDGET_CONFIG.welcomeMessage);
-                if (!this.isOpen) {
-                    this.showNotification();
-                }
             }, 1000);
         }
 
         addMessage(sender, text, isHtml = false) {
             const message = document.createElement('div');
-            message.className = `bolashak-widget-message ${sender}`;
+            message.className = `message ${sender}-message`;
 
-            const content = document.createElement('div');
-            content.className = 'bolashak-widget-message-content';
+            const currentTime = new Date().toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
 
-            if (isHtml) {
-                content.innerHTML = text;
-            } else {
-                content.textContent = text;
-            }
+            message.innerHTML = `
+                <div class="message-content">
+                    ${isHtml ? text : this.escapeHtml(text)}
+                </div>
+                <div class="message-time">${currentTime}</div>
+            `;
 
-            message.appendChild(content);
             this.messagesContainer.appendChild(message);
-
             this.messages.push({ sender, text, timestamp: new Date() });
             this.scrollToBottom();
+        }
+
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         scrollToBottom() {
@@ -938,13 +952,11 @@
         }
 
         showTyping() {
-            this.isTyping = true;
-            this.typingIndicator.style.display = 'flex';
+            this.typingIndicator.style.display = 'block';
             this.scrollToBottom();
         }
 
         hideTyping() {
-            this.isTyping = false;
             this.typingIndicator.style.display = 'none';
         }
 
@@ -952,16 +964,13 @@
             const text = this.inputField.value.trim();
             if (!text) return;
 
-            // Добавляем сообщение пользователя
             this.addMessage('user', text);
             this.inputField.value = '';
             this.sendButton.disabled = true;
 
             try {
-                // Показываем индикатор печати
                 this.showTyping();
 
-                // Отправляем запрос к API
                 const response = await fetch(`${WIDGET_CONFIG.apiEndpoint}/api/chat`, {
                     method: 'POST',
                     headers: {
@@ -978,23 +987,13 @@
                 }
 
                 const data = await response.json();
-
-                // Скрываем индикатор печати
                 this.hideTyping();
-
-                // Добавляем ответ бота
                 this.addMessage('bot', data.response || 'Извините, произошла ошибка. Попробуйте позже.');
 
             } catch (error) {
                 console.error('Error sending message:', error);
                 this.hideTyping();
-
-                let errorMessage = 'Извините, произошла ошибка соединения.';
-                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                    errorMessage = 'Ошибка подключения к серверу. Проверьте настройки CORS или URL API.';
-                }
-
-                this.addMessage('bot', errorMessage);
+                this.addMessage('bot', 'Извините, произошла ошибка соединения.');
             } finally {
                 this.sendButton.disabled = false;
                 this.inputField.focus();
