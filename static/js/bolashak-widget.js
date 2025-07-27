@@ -8,7 +8,7 @@
 
     // Конфигурация виджета
     const WIDGET_CONFIG = {
-        apiEndpoint: window.BOLASHAK_API_URL || 'https://your-replit-app.replit.app',
+        apiEndpoint: window.BOLASHAK_API_URL || window.location.origin,
         position: 'bottom-right', // bottom-right, bottom-left
         theme: 'dark', // dark, light
         language: 'ru', // ru, kz
@@ -581,7 +581,13 @@
             } catch (error) {
                 console.error('Error sending message:', error);
                 this.hideTyping();
-                this.addMessage('bot', 'Извините, произошла ошибка соединения. Проверьте интернет и попробуйте снова.');
+                
+                let errorMessage = 'Извините, произошла ошибка соединения.';
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Ошибка подключения к серверу. Проверьте настройки CORS или URL API.';
+                }
+                
+                this.addMessage('bot', errorMessage);
             } finally {
                 this.sendButton.disabled = false;
                 this.inputField.focus();
