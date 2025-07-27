@@ -245,7 +245,7 @@
     border-radius: 18px;
     border-bottom-left-radius: 6px;
     max-width: 85%;
-    border: 1px solid #E5E7EB;
+    align-items: center;
 }
 
 .typing-dots span {
