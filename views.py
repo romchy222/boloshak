@@ -14,6 +14,11 @@ def index():
     """Main page with chat widget"""
     return render_template('index.html')
 
+@main_bp.route('/widget-demo')
+def widget_demo():
+    """Widget integration demo page"""
+    return render_template('widget-demo.html')
+
 @main_bp.route('/api/chat', methods=['POST'])
 def chat():
     """Handle chat messages from the frontend"""

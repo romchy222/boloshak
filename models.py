@@ -57,7 +57,7 @@ class Document(db.Model):
     title = db.Column(db.String(200), nullable=False)
     filename = db.Column(db.String(200), nullable=False)
     file_path = db.Column(db.String(500), nullable=False)
-    file_type = db.Column(db.String(10), nullable=False)  # pdf, doc, txt, etc.
+    file_type = db.Column(db.String(50), nullable=False)  # pdf, doc, txt, etc.
     file_size = db.Column(db.Integer)  # Size in bytes
     content_text = db.Column(db.Text)  # Extracted text content
     is_processed = db.Column(db.Boolean, default=False)
