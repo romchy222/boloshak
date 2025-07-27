@@ -225,8 +225,9 @@
         
         .bolashak-widget-typing {
             display: none;
-            align-items: center;
+            align-items: flex-end;
             margin-bottom: 16px;
+            justify-content: flex-start;
         }
         
         .bolashak-widget-typing-dots {
@@ -235,8 +236,9 @@
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 18px;
+            border-bottom-left-radius: 4px;
             padding: 12px 16px;
-            margin-left: 8px;
+            max-width: 80%;
         }
         
         .bolashak-widget-typing-dot {
@@ -392,17 +394,13 @@
                             </svg>
                         </button>
                     </div>
-                    <div class="bolashak-widget-messages"></div>
-                    <div class="bolashak-widget-typing">
-                        <div class="bolashak-widget-avatar">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 21H5V3H15V9H19Z"/>
-                            </svg>
-                        </div>
-                        <div class="bolashak-widget-typing-dots">
-                            <div class="bolashak-widget-typing-dot"></div>
-                            <div class="bolashak-widget-typing-dot"></div>
-                            <div class="bolashak-widget-typing-dot"></div>
+                    <div class="bolashak-widget-messages">
+                        <div class="bolashak-widget-typing">
+                            <div class="bolashak-widget-typing-dots">
+                                <div class="bolashak-widget-typing-dot"></div>
+                                <div class="bolashak-widget-typing-dot"></div>
+                                <div class="bolashak-widget-typing-dot"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="bolashak-widget-input">
