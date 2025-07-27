@@ -2,6 +2,7 @@ import os
 import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -30,6 +31,14 @@ def create_app():
     
     # Initialize the app with the extension
     db.init_app(app)
+    
+    # Configure CORS
+    CORS(app, origins=[
+        "https://7a0463a0-cbab-40ed-8964-1461cf93cb8a-00-tv6bvx5wqo3s.pike.replit.dev",
+        "https://*.replit.dev",  # Allow all replit.dev subdomains
+        "http://localhost:*",    # For local development
+        "https://localhost:*"    # For local development with HTTPS
+    ], supports_credentials=True)
     
     # Import blueprints
     from views import main_bp
