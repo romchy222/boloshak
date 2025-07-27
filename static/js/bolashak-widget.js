@@ -10,7 +10,7 @@
     const WIDGET_CONFIG = {
         apiEndpoint: window.BOLASHAK_API_URL || window.location.origin,
         position: 'bottom-right', // bottom-right, bottom-left
-        theme: 'dark', // dark, light
+        theme: 'light', // dark, light
         language: 'ru', // ru, kz
         minimized: true,
         title: 'BolashakBot - Помощник студента',

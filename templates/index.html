@@ -80,6 +80,7 @@
             <div>
                 <div>QabyldauBot</div>
                 <div class="chat-header-status">онлайн</div>
+                
             </div>
         </div>
         <div class="chat-controls">
@@ -116,6 +117,14 @@
         </div>
     
     
+    <div class="quick-replies-container">
+        <button class="scroll-btn left" onclick="scrollQuickReplies(-100)">&lt;</button>
+        <div class="quick-replies" id="quickReplies">
+            <!-- Быстрые слова будут добавляться сюда через JS -->
+        </div>
+        <button class="scroll-btn right" onclick="scrollQuickReplies(100)">&gt;</button>
+    </div>
+
     <div class="chat-input-container">
         <div class="input-group">
             <input type="text" id="chatInput" class="form-control" 
@@ -136,5 +145,54 @@
 {% endblock %}
 
 {% block scripts %}
+
+<script>
+
+    // Массив быстрых ответов
+    const quickReplies = [
+        "Как поступить?",
+        "Документы",
+        "",
+        "Спасибо",
+        "Помощь",
+        "Информация"
+    ];
+
+    // Функция для создания кнопок быстрых ответов
+    function loadQuickReplies() {
+        const container = document.getElementById('quickReplies');
+        container.innerHTML = ''; // очищаем, если нужно
+        quickReplies.forEach(text => {
+            const btn = document.createElement('div');
+            btn.className = 'quick-reply';
+            btn.innerText = text;
+            btn.onclick = () => {
+                // Отправляем сообщение при клике
+                sendQuickReply(text);
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    // Функция отправки быстрого ответа
+    function sendQuickReply(text) {
+        // Вставляем текст в чат и отправляем
+        // Можно использовать ваш existing sendMessage() или аналог
+        // Например:
+        document.getElementById('chatInput').value = text;
+        sendMessage();
+    }
+
+    // Функция для прокрутки
+    function scrollQuickReplies(amount) {
+        const container = document.getElementById('quickReplies');
+        container.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+
+    // Загружаем быстрые ответы при загрузке страницы
+    window.onload = loadQuickReplies;
+    
+</script>
+
 <script src="{{ url_for('static', filename='js/chat-widget.js') }}"></script>
 {% endblock %}

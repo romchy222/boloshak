@@ -104,6 +104,7 @@ class ChatWidget {
         this.addMessage(message, 'user');
         chatInput.value = '';
         chatInput.style.height = 'auto';
+        chatInput.style.color = 'black';
         
         // Show typing indicator
         this.showTypingIndicator();
@@ -165,11 +166,15 @@ class ChatWidget {
             hour: '2-digit',
             minute: '2-digit'
         });
+
+        const iconHTML = sender === 'bot' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+        
         
         messageDiv.innerHTML = `
             <div class="message-content ${isError ? 'text-danger' : ''}">
-                ${sender === 'bot' ? '<strong>QabyldauBot:</strong> ' : ''}
+                ${sender === 'bot' ? iconHTML + '<strong>  QabyldauBot:</strong> ' : ''}
                 ${this.formatMessage(content)}
+                ${sender === 'user' ? '  ' + iconHTML: ''}
             </div>
             <div class="message-time">${currentTime}</div>
         `;
