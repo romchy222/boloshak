@@ -1,37 +1,57 @@
+# Импорт необходимых модулей
 from datetime import datetime
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class Category(db.Model):
+    """Модель категории для FAQ"""
     __tablename__ = 'categories'
     
+    # Первичный ключ
     id = db.Column(db.Integer, primary_key=True)
+    # Название категории на русском языке
     name_ru = db.Column(db.String(100), nullable=False)
+    # Название категории на казахском языке
     name_kz = db.Column(db.String(100), nullable=False)
+    # Описание категории на русском языке
     description_ru = db.Column(db.Text)
+    # Описание категории на казахском языке
     description_kz = db.Column(db.Text)
+    # Дата создания записи
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationship with FAQ
+    # Связь один-ко-многим с FAQ
     faqs = db.relationship('FAQ', backref='category', lazy=True)
     
     def __repr__(self):
+        """Строковое представление категории"""
         return f'<Category {self.name_ru}>'
 
 class FAQ(db.Model):
+    """Модель часто задаваемых вопросов"""
     __tablename__ = 'faqs'
     
+    # Первичный ключ
     id = db.Column(db.Integer, primary_key=True)
+    # Вопрос на русском языке
     question_ru = db.Column(db.Text, nullable=False)
+    # Вопрос на казахском языке
     question_kz = db.Column(db.Text, nullable=False)
+    # Ответ на русском языке
     answer_ru = db.Column(db.Text, nullable=False)
+    # Ответ на казахском языке
     answer_kz = db.Column(db.Text, nullable=False)
+    # Внешний ключ на категорию
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    # Статус активности FAQ
     is_active = db.Column(db.Boolean, default=True)
+    # Дата создания записи
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Дата последнего обновления
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     def __repr__(self):
+        """Строковое представление FAQ"""
         return f'<FAQ {self.question_ru[:50]}...>'
 
 class UserQuery(db.Model):

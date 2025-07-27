@@ -25,17 +25,17 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             transition: all 0.3s ease;
         }
-        
+
         .bolashak-widget.bottom-right {
             bottom: 20px;
             right: 20px;
         }
-        
+
         .bolashak-widget.bottom-left {
             bottom: 20px;
             left: 20px;
         }
-        
+
         .bolashak-widget-button {
             width: 60px;
             height: 60px;
@@ -50,18 +50,18 @@
             transition: all 0.3s ease;
             position: relative;
         }
-        
+
         .bolashak-widget-button:hover {
             border-color: #a0aec0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        
+
         .bolashak-widget-button svg {
             width: 24px;
             height: 24px;
             fill: #4a5568;
         }
-        
+
         .bolashak-widget-notification {
             position: absolute;
             top: -5px;
@@ -78,13 +78,13 @@
             color: white;
             animation: pulse 2s infinite;
         }
-        
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
-        
+
         .bolashak-widget-chat {
             position: absolute;
             bottom: 80px;
@@ -99,17 +99,17 @@
             overflow: hidden;
             border: 1px solid #e1e8ed;
         }
-        
+
         .bolashak-widget.bottom-left .bolashak-widget-chat {
             right: auto;
             left: 0;
         }
-        
+
         .bolashak-widget-chat.open {
             display: flex;
             animation: slideUp 0.3s ease;
         }
-        
+
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -120,7 +120,7 @@
                 transform: translateY(0);
             }
         }
-        
+
         .bolashak-widget-header {
             background: #ffffff;
             color: #2d3748;
@@ -130,12 +130,12 @@
             justify-content: space-between;
             border-bottom: 1px solid #e2e8f0;
         }
-        
+
         .bolashak-widget-header-info {
             display: flex;
             align-items: center;
         }
-        
+
         .bolashak-widget-avatar {
             width: 40px;
             height: 40px;
@@ -147,25 +147,25 @@
             justify-content: center;
             margin-right: 12px;
         }
-        
+
         .bolashak-widget-avatar svg {
             width: 20px;
             height: 20px;
             fill: #4a5568;
         }
-        
+
         .bolashak-widget-title {
             font-size: 16px;
             font-weight: 600;
             margin: 0;
         }
-        
+
         .bolashak-widget-status {
             font-size: 12px;
             opacity: 0.9;
             margin: 0;
         }
-        
+
         .bolashak-widget-close {
             background: none;
             border: none;
@@ -175,33 +175,33 @@
             border-radius: 4px;
             transition: background-color 0.2s;
         }
-        
+
         .bolashak-widget-close:hover {
             background: #f7fafc;
             color: #4a5568;
         }
-        
+
         .bolashak-widget-messages {
             flex: 1;
             overflow-y: auto;
             padding: 16px;
             background: #f8fafc;
         }
-        
+
         .bolashak-widget-message {
             margin-bottom: 16px;
             display: flex;
             align-items: flex-end;
         }
-        
+
         .bolashak-widget-message.user {
             justify-content: flex-end;
         }
-        
+
         .bolashak-widget-message.bot {
             justify-content: flex-start;
         }
-        
+
         .bolashak-widget-message-content {
             max-width: 80%;
             padding: 12px 16px;
@@ -209,27 +209,27 @@
             word-wrap: break-word;
             line-height: 1.4;
         }
-        
+
         .bolashak-widget-message.user .bolashak-widget-message-content {
             background: #4a5568;
             color: white;
             border-bottom-right-radius: 4px;
         }
-        
+
         .bolashak-widget-message.bot .bolashak-widget-message-content {
             background: white;
             color: #1a202c;
             border: 1px solid #e2e8f0;
             border-bottom-left-radius: 4px;
         }
-        
+
         .bolashak-widget-typing {
             display: none;
             align-items: flex-end;
             margin-bottom: 16px;
             justify-content: flex-start;
         }
-        
+
         .bolashak-widget-typing-dots {
             display: flex;
             align-items: center;
@@ -240,7 +240,7 @@
             padding: 12px 16px;
             max-width: 80%;
         }
-        
+
         .bolashak-widget-typing-dot {
             width: 8px;
             height: 8px;
@@ -249,15 +249,15 @@
             margin: 0 2px;
             animation: typing 1.4s infinite;
         }
-        
+
         .bolashak-widget-typing-dot:nth-child(2) {
             animation-delay: 0.2s;
         }
-        
+
         .bolashak-widget-typing-dot:nth-child(3) {
             animation-delay: 0.4s;
         }
-        
+
         @keyframes typing {
             0%, 60%, 100% {
                 transform: translateY(0);
@@ -266,19 +266,19 @@
                 transform: translateY(-10px);
             }
         }
-        
+
         .bolashak-widget-input {
             padding: 16px;
             border-top: 1px solid #e2e8f0;
             background: white;
         }
-        
+
         .bolashak-widget-input-form {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        
+
         .bolashak-widget-input-field {
             flex: 1;
             border: 1px solid #e2e8f0;
@@ -288,11 +288,11 @@
             outline: none;
             transition: border-color 0.2s;
         }
-        
+
         .bolashak-widget-input-field:focus {
             border-color: #4a5568;
         }
-        
+
         .bolashak-widget-send {
             width: 40px;
             height: 40px;
@@ -306,16 +306,16 @@
             justify-content: center;
             transition: background-color 0.2s;
         }
-        
+
         .bolashak-widget-send:hover:not(:disabled) {
             background: #2d3748;
         }
-        
+
         .bolashak-widget-send:disabled {
             background: #cbd5e0;
             cursor: not-allowed;
         }
-        
+
         .bolashak-widget-powered {
             text-align: center;
             padding: 8px;
@@ -324,16 +324,16 @@
             background: #f7fafc;
             border-top: 1px solid #e2e8f0;
         }
-        
+
         .bolashak-widget-powered a {
             color: #4a5568;
             text-decoration: none;
         }
-        
+
         .bolashak-widget-powered a:hover {
             color: #2d3748;
         }
-        
+
         @media (max-width: 480px) {
             .bolashak-widget-chat {
                 width: calc(100vw - 40px);
@@ -342,20 +342,21 @@
                 right: 20px;
                 left: 20px;
             }
-            
+
             .bolashak-widget.bottom-left .bolashak-widget-chat {
                 left: 20px;
             }
         }
     `;
 
+    // Класс виджета чат-бота Болашак
     class BolashakWidget {
-        constructor() {
-            this.isOpen = false;
-            this.messages = [];
-            this.isTyping = false;
-            
-            this.init();
+        constructor(config = {}) {
+            // Объединение конфигурации по умолчанию с пользовательской
+            this.config = { ...WIDGET_CONFIG, ...config };
+            this.isOpen = false;        // Состояние виджета (открыт/закрыт)
+            this.messages = [];         // Массив сообщений чата
+            this.init();               // Инициализация виджета
         }
 
         init() {
@@ -507,19 +508,19 @@
         addMessage(sender, text, isHtml = false) {
             const message = document.createElement('div');
             message.className = `bolashak-widget-message ${sender}`;
-            
+
             const content = document.createElement('div');
             content.className = 'bolashak-widget-message-content';
-            
+
             if (isHtml) {
                 content.innerHTML = text;
             } else {
                 content.textContent = text;
             }
-            
+
             message.appendChild(content);
             this.messagesContainer.appendChild(message);
-            
+
             this.messages.push({ sender, text, timestamp: new Date() });
             this.scrollToBottom();
         }
@@ -569,22 +570,22 @@
                 }
 
                 const data = await response.json();
-                
+
                 // Скрываем индикатор печати
                 this.hideTyping();
-                
+
                 // Добавляем ответ бота
                 this.addMessage('bot', data.response || 'Извините, произошла ошибка. Попробуйте позже.');
 
             } catch (error) {
                 console.error('Error sending message:', error);
                 this.hideTyping();
-                
+
                 let errorMessage = 'Извините, произошла ошибка соединения.';
                 if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
                     errorMessage = 'Ошибка подключения к серверу. Проверьте настройки CORS или URL API.';
                 }
-                
+
                 this.addMessage('bot', errorMessage);
             } finally {
                 this.sendButton.disabled = false;
