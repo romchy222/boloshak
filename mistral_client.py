@@ -10,7 +10,7 @@ class MistralClient:
     """Client for interacting with Mistral AI API"""
     
     def __init__(self):
-        self.api_key = os.environ.get("MISTRAL_API_KEY", "default_mistral_key")
+        self.api_key = os.environ.get("MISTRAL_API_KEY", "nxJcrPGFtx89fMeaLM2FdJS6STblMHAf")
         self.base_url = "https://api.mistral.ai/v1"
         self.model = "mistral-small-latest"
         

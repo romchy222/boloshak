@@ -1,9 +1,13 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
-from models import Category, FAQ, UserQuery, AdminUser
+from werkzeug.utils import secure_filename
+from models import Category, FAQ, UserQuery, AdminUser, Document, WebSource, KnowledgeBase
 from app import db
 from datetime import datetime, timedelta
 from sqlalchemy import func
 import logging
+import os
+import mimetypes
+from document_processor import DocumentProcessor, WebScraper, KnowledgeBaseUpdater
 
 admin_bp = Blueprint('admin', __name__)
 logger = logging.getLogger(__name__)
@@ -28,6 +32,11 @@ def dashboard():
         total_faqs = FAQ.query.filter_by(is_active=True).count()
         total_categories = Category.query.count()
         
+        # Knowledge base statistics
+        total_documents = Document.query.filter_by(is_active=True).count()
+        total_web_sources = WebSource.query.filter_by(is_active=True).count()
+        total_kb_chunks = KnowledgeBase.query.filter_by(is_active=True).count()
+        
         # Get recent queries (last 10)
         recent_queries = UserQuery.query.order_by(UserQuery.created_at.desc()).limit(10).all()
         
@@ -51,6 +60,9 @@ def dashboard():
                              total_queries=total_queries,
                              total_faqs=total_faqs,
                              total_categories=total_categories,
+                             total_documents=total_documents,
+                             total_web_sources=total_web_sources,
+                             total_kb_chunks=total_kb_chunks,
                              recent_queries=recent_queries,
                              daily_stats=daily_stats,
                              avg_response_time=round(avg_response_time, 2))
@@ -208,6 +220,265 @@ def login():
         flash('Неверное имя пользователя или пароль', 'error')
     
     return render_template('admin/login.html')
+
+# Knowledge Management Routes
+
+@admin_bp.route('/documents')
+@admin_required
+def documents():
+    """Manage documents"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        documents_list = Document.query.filter_by(is_active=True).order_by(
+            Document.created_at.desc()
+        ).paginate(page=page, per_page=10, error_out=False)
+        
+        return render_template('admin/documents.html', documents=documents_list)
+    except Exception as e:
+        logger.error(f"Error in documents page: {str(e)}")
+        flash('Ошибка при загрузке документов', 'error')
+        return render_template('admin/documents.html', documents=None)
+
+@admin_bp.route('/documents/upload', methods=['POST'])
+@admin_required
+def upload_document():
+    """Upload and process document"""
+    try:
+        if 'file' not in request.files:
+            flash('Файл не выбран', 'error')
+            return redirect(url_for('admin.documents'))
+        
+        file = request.files['file']
+        title = request.form.get('title', '').strip()
+        
+        if file.filename == '':
+            flash('Файл не выбран', 'error')
+            return redirect(url_for('admin.documents'))
+        
+        if not title:
+            title = file.filename
+        
+        # Secure filename
+        filename = secure_filename(file.filename)
+        
+        # Get file type
+        file_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+        
+        # Save file
+        processor = DocumentProcessor()
+        file_path, file_size = processor.save_uploaded_file(file, filename)
+        
+        # Create document record
+        document = Document(
+            title=title,
+            filename=filename,
+            file_path=file_path,
+            file_type=file_type,
+            file_size=file_size,
+            uploaded_by=session['admin_id']
+        )
+        
+        db.session.add(document)
+        db.session.flush()  # Get document ID
+        
+        # Process document and update knowledge base
+        models_dict = {
+            'Document': Document,
+            'WebSource': WebSource,
+            'KnowledgeBase': KnowledgeBase
+        }
+        kb_updater = KnowledgeBaseUpdater(db, models_dict)
+        
+        if kb_updater.update_from_document(document.id):
+            flash('Документ успешно загружен и обработан', 'success')
+        else:
+            flash('Документ загружен, но возникла ошибка при обработке', 'warning')
+        
+        db.session.commit()
+        
+    except Exception as e:
+        logger.error(f"Error uploading document: {str(e)}")
+        flash('Ошибка при загрузке документа', 'error')
+        db.session.rollback()
+    
+    return redirect(url_for('admin.documents'))
+
+@admin_bp.route('/documents/<int:doc_id>/delete', methods=['POST'])
+@admin_required
+def delete_document(doc_id):
+    """Delete document"""
+    try:
+        document = Document.query.get_or_404(doc_id)
+        
+        # Remove from knowledge base
+        KnowledgeBase.query.filter_by(source_type='document', source_id=doc_id).delete()
+        
+        # Remove file
+        if os.path.exists(document.file_path):
+            os.remove(document.file_path)
+        
+        # Remove document record
+        db.session.delete(document)
+        db.session.commit()
+        
+        flash('Документ успешно удален', 'success')
+        
+    except Exception as e:
+        logger.error(f"Error deleting document {doc_id}: {str(e)}")
+        flash('Ошибка при удалении документа', 'error')
+        db.session.rollback()
+    
+    return redirect(url_for('admin.documents'))
+
+@admin_bp.route('/web-sources')
+@admin_required
+def web_sources():
+    """Manage web sources"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        sources_list = WebSource.query.filter_by(is_active=True).order_by(
+            WebSource.created_at.desc()
+        ).paginate(page=page, per_page=10, error_out=False)
+        
+        return render_template('admin/web_sources.html', sources=sources_list)
+    except Exception as e:
+        logger.error(f"Error in web sources page: {str(e)}")
+        flash('Ошибка при загрузке веб-источников', 'error')
+        return render_template('admin/web_sources.html', sources=None)
+
+@admin_bp.route('/web-sources/add', methods=['POST'])
+@admin_required
+def add_web_source():
+    """Add web source"""
+    try:
+        title = request.form.get('title', '').strip()
+        url = request.form.get('url', '').strip()
+        frequency = request.form.get('frequency', 'manual')
+        
+        if not title or not url:
+            flash('Название и URL обязательны', 'error')
+            return redirect(url_for('admin.web_sources'))
+        
+        # Validate URL
+        scraper = WebScraper()
+        if not scraper.validate_url(url):
+            flash('URL недоступен или некорректен', 'error')
+            return redirect(url_for('admin.web_sources'))
+        
+        # Create web source
+        web_source = WebSource(
+            title=title,
+            url=url,
+            scrape_frequency=frequency,
+            added_by=session['admin_id']
+        )
+        
+        db.session.add(web_source)
+        db.session.flush()  # Get web source ID
+        
+        # Scrape content and update knowledge base
+        models_dict = {
+            'Document': Document,
+            'WebSource': WebSource,
+            'KnowledgeBase': KnowledgeBase
+        }
+        kb_updater = KnowledgeBaseUpdater(db, models_dict)
+        
+        if kb_updater.update_from_web_source(web_source.id):
+            flash('Веб-источник успешно добавлен и обработан', 'success')
+        else:
+            flash('Веб-источник добавлен, но возникла ошибка при обработке', 'warning')
+        
+        db.session.commit()
+        
+    except Exception as e:
+        logger.error(f"Error adding web source: {str(e)}")
+        flash('Ошибка при добавлении веб-источника', 'error')
+        db.session.rollback()
+    
+    return redirect(url_for('admin.web_sources'))
+
+@admin_bp.route('/web-sources/<int:source_id>/update', methods=['POST'])
+@admin_required
+def update_web_source(source_id):
+    """Update web source content"""
+    try:
+        models_dict = {
+            'Document': Document,
+            'WebSource': WebSource,
+            'KnowledgeBase': KnowledgeBase
+        }
+        kb_updater = KnowledgeBaseUpdater(db, models_dict)
+        
+        if kb_updater.update_from_web_source(source_id):
+            flash('Веб-источник успешно обновлен', 'success')
+        else:
+            flash('Ошибка при обновлении веб-источника', 'error')
+        
+    except Exception as e:
+        logger.error(f"Error updating web source {source_id}: {str(e)}")
+        flash('Ошибка при обновлении веб-источника', 'error')
+    
+    return redirect(url_for('admin.web_sources'))
+
+@admin_bp.route('/web-sources/<int:source_id>/delete', methods=['POST'])
+@admin_required
+def delete_web_source(source_id):
+    """Delete web source"""
+    try:
+        web_source = WebSource.query.get_or_404(source_id)
+        
+        # Remove from knowledge base
+        KnowledgeBase.query.filter_by(source_type='web', source_id=source_id).delete()
+        
+        # Remove web source record
+        db.session.delete(web_source)
+        db.session.commit()
+        
+        flash('Веб-источник успешно удален', 'success')
+        
+    except Exception as e:
+        logger.error(f"Error deleting web source {source_id}: {str(e)}")
+        flash('Ошибка при удалении веб-источника', 'error')
+        db.session.rollback()
+    
+    return redirect(url_for('admin.web_sources'))
+
+@admin_bp.route('/knowledge-base')
+@admin_required
+def knowledge_base():
+    """View knowledge base"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        source_type = request.args.get('source_type', '')
+        
+        query = KnowledgeBase.query.filter_by(is_active=True)
+        if source_type:
+            query = query.filter_by(source_type=source_type)
+        
+        kb_entries = query.order_by(KnowledgeBase.created_at.desc()).paginate(
+            page=page, per_page=20, error_out=False
+        )
+        
+        # Get statistics
+        total_chunks = KnowledgeBase.query.filter_by(is_active=True).count()
+        doc_chunks = KnowledgeBase.query.filter_by(is_active=True, source_type='document').count()
+        web_chunks = KnowledgeBase.query.filter_by(is_active=True, source_type='web').count()
+        
+        stats = {
+            'total': total_chunks,
+            'documents': doc_chunks,
+            'web': web_chunks
+        }
+        
+        return render_template('admin/knowledge_base.html', 
+                             entries=kb_entries, 
+                             stats=stats,
+                             selected_source_type=source_type)
+    except Exception as e:
+        logger.error(f"Error in knowledge base page: {str(e)}")
+        flash('Ошибка при загрузке базы знаний', 'error')
+        return render_template('admin/knowledge_base.html', entries=None, stats={})
 
 @admin_bp.route('/logout')
 def logout():

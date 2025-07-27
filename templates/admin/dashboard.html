@@ -75,6 +75,55 @@
         </div>
     </div>
 
+    <!-- Knowledge Base Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_documents or 0 }}</h4>
+                            <p class="mb-0">Документов загружено</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-file-text fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_web_sources or 0 }}</h4>
+                            <p class="mb-0">Веб-источников</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-globe fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_kb_chunks or 0 }}</h4>
+                            <p class="mb-0">Фрагментов в базе знаний</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-database fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation Menu -->
     <div class="row mb-4">
         <div class="col-12">
@@ -98,6 +147,26 @@
                             <a href="{{ url_for('admin.queries') }}" class="btn btn-outline-info w-100 mb-2">
                                 <i class="fas fa-comments me-2"></i>
                                 Просмотр запросов
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin.documents') }}" class="btn btn-outline-warning w-100 mb-2">
+                                <i class="fas fa-file-text me-2"></i>
+                                Управление документами
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin.web_sources') }}" class="btn btn-outline-secondary w-100 mb-2">
+                                <i class="fas fa-globe me-2"></i>
+                                Веб-источники
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin.knowledge_base') }}" class="btn btn-outline-dark w-100 mb-2">
+                                <i class="fas fa-database me-2"></i>
+                                База знаний
                             </a>
                         </div>
                     </div>
