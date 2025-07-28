@@ -730,11 +730,31 @@
             right: 20px;
             left: 20px;
             border-radius: var(--border-radius-md);
+            /* Improved mobile animations */
+            will-change: transform, opacity;
+            transform: translate3d(0, 0, 0);
         }
 
         #bolashakChatWidget .chat-toggle-btn {
             bottom: 20px;
             right: 20px;
+            /* Improved mobile animations */
+            will-change: transform;
+            transform: translate3d(0, 0, 0);
+        }
+        
+        /* Smooth mobile scrolling */
+        #bolashakChatWidget .chat-messages {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        
+        /* Better touch targets */
+        #bolashakChatWidget .quick-reply,
+        #bolashakChatWidget .category-tab,
+        #bolashakChatWidget .scroll-btn {
+            min-height: 44px;
+            min-width: 44px;
         }
     }
 
@@ -746,6 +766,118 @@
         #bolashakChatWidget .chat-widget {
             bottom: 75px;
             border-radius: var(--border-radius-sm);
+        }
+        
+        /* Reduce motion for better mobile performance */
+        #bolashakChatWidget .message {
+            animation-duration: 0.2s;
+        }
+        
+        #bolashakChatWidget .typing-indicator {
+            animation-duration: 0.2s;
+        }
+    }
+    
+    /* Error Alert Styles */
+    #bolashakChatWidget .error-alert {
+        margin: 10px 0;
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-left: 4px solid #fdcb6e;
+        border-radius: 8px;
+        padding: 0;
+        animation: slideInAlert 0.3s ease forwards;
+    }
+    
+    #bolashakChatWidget .error-alert-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 16px;
+    }
+    
+    #bolashakChatWidget .error-alert-icon {
+        color: #e17055;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+    
+    #bolashakChatWidget .error-alert-text {
+        flex: 1;
+        font-size: 14px;
+        line-height: 1.4;
+        color: #8b4513;
+    }
+    
+    #bolashakChatWidget .error-alert-text strong {
+        color: #d63031;
+    }
+    
+    #bolashakChatWidget .error-alert-close {
+        background: none;
+        border: none;
+        color: #636e72;
+        cursor: pointer;
+        padding: 2px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+        flex-shrink: 0;
+    }
+    
+    #bolashakChatWidget .error-alert-close:hover,
+    #bolashakChatWidget .error-alert-close:focus {
+        background: rgba(0, 0, 0, 0.1);
+        outline: 2px solid #fdcb6e;
+        outline-offset: 1px;
+    }
+    
+    @keyframes slideInAlert {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Enhanced focus indicators for accessibility */
+    #bolashakChatWidget button:focus,
+    #bolashakChatWidget .quick-reply:focus,
+    #bolashakChatWidget .category-tab:focus,
+    #bolashakChatWidget .language-option:focus,
+    #bolashakChatWidget input:focus {
+        outline: 2px solid #0056b3;
+        outline-offset: 2px;
+    }
+    
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        #bolashakChatWidget .chat-widget {
+            border: 2px solid #000;
+        }
+        
+        #bolashakChatWidget .quick-reply,
+        #bolashakChatWidget .category-tab {
+            border: 1px solid #000;
+        }
+    }
+    
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+        #bolashakChatWidget * {
+            animation-duration: 0.01s !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01s !important;
+        }
+        
+        #bolashakChatWidget .chat-widget {
+            transform: none !important;
+        }
+        
+        #bolashakChatWidget .message {
+            animation: none !important;
         }
     }
     `;
@@ -874,6 +1006,9 @@
             const widget = document.createElement('div');
             widget.className = 'chat-widget';
             widget.id = 'chatWidget';
+            widget.setAttribute('role', 'dialog');
+            widget.setAttribute('aria-modal', 'true');
+            widget.setAttribute('aria-label', 'Чат с QabyldauBot - помощником университета Болашак');
 
              widget.innerHTML = `
                             <div class="chat-header">
@@ -885,17 +1020,17 @@
                                     </div>
                                 </div>
                                 <div class="chat-controls">
-                                    <div class="language-switcher" id="languageSwitcher">
-                                        <div class="language-option ru active" data-lang="ru">RU</div>
-                                        <div class="language-option kz" data-lang="kz">KZ</div>
+                                    <div class="language-switcher" id="languageSwitcher" role="group" aria-label="Выбор языка">
+                                        <div class="language-option ru active" data-lang="ru" role="button" tabindex="0" aria-label="Переключить на русский язык">RU</div>
+                                        <div class="language-option kz" data-lang="kz" role="button" tabindex="0" aria-label="Қазақ тіліне ауысу">KZ</div>
                                     </div>
-                                    <button class="chat-close">
+                                    <button class="chat-close" aria-label="Закрыть чат" tabindex="0">
                                         ${SVG_ICONS.times}
                                     </button>
                                 </div>
                             </div>
-                            <div class="chat-messages" id="chatMessages">
-                                <div id="typingIndicator" class="typing-indicator" style="display:none;">
+                            <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Сообщения чата">
+                                <div id="typingIndicator" class="typing-indicator" style="display:none;" aria-live="polite">
                                     <div class="typing-indicator-wrapper">
                                         <div class="typing-avatar">
                                             ${SVG_ICONS.botAvatar}
@@ -911,26 +1046,26 @@
                             <div class="quick-replies-section" id="quickRepliesSection">
                                 <div class="quick-replies-title">
                                     <h4>${SVG_ICONS.category} Быстрые ответы</h4>
-                                    <button class="quick-replies-toggle" id="quickRepliesToggle">
+                                    <button class="quick-replies-toggle" id="quickRepliesToggle" aria-label="Свернуть/развернуть быстрые ответы" tabindex="0">
                                         ${SVG_ICONS.close}
                                     </button>
                                 </div>
-                                <div class="category-tabs" id="categoryTabs">
-                                    <button class="category-tab active" data-category="main">Основное</button>
-                                    <button class="category-tab" data-category="admission">Поступление</button>
-                                    <button class="category-tab" data-category="documents">Документы</button>
-                                    <button class="category-tab" data-category="about">О нас</button>
+                                <div class="category-tabs" id="categoryTabs" role="tablist" aria-label="Категории быстрых ответов">
+                                    <button class="category-tab active" data-category="main" role="tab" tabindex="0" aria-selected="true" aria-label="Основные вопросы">Основное</button>
+                                    <button class="category-tab" data-category="admission" role="tab" tabindex="-1" aria-selected="false" aria-label="Вопросы о поступлении">Поступление</button>
+                                    <button class="category-tab" data-category="documents" role="tab" tabindex="-1" aria-selected="false" aria-label="Вопросы о документах">Документы</button>
+                                    <button class="category-tab" data-category="about" role="tab" tabindex="-1" aria-selected="false" aria-label="О университете">О нас</button>
                                 </div>
                                 <div class="quick-replies-container">
-                                    <button class="scroll-btn left">&lt;</button>
-                                    <div class="quick-replies" id="quickReplies"></div>
-                                    <button class="scroll-btn right">&gt;</button>
+                                    <button class="scroll-btn left" aria-label="Прокрутить быстрые ответы влево" tabindex="0">&lt;</button>
+                                    <div class="quick-replies" id="quickReplies" role="group" aria-label="Быстрые ответы"></div>
+                                    <button class="scroll-btn right" aria-label="Прокрутить быстрые ответы вправо" tabindex="0">&gt;</button>
                                 </div>
                             </div>
                             <div class="chat-input-container">
                                 <div class="input-group">
-                                    <input type="text" id="chatInput" placeholder="Введите ваш вопрос...">
-                                    <button class="chat-send" type="button">
+                                    <input type="text" id="chatInput" placeholder="Введите ваш вопрос..." aria-label="Введите ваш вопрос" tabindex="0">
+                                    <button class="chat-send" type="button" aria-label="Отправить сообщение" tabindex="0">
                                         ${SVG_ICONS.paperPlane}
                                     </button>
                                 </div>
@@ -941,6 +1076,8 @@
                         toggleBtn.id = 'chatToggle';
                         toggleBtn.className = 'chat-toggle-btn';
                         toggleBtn.innerHTML = SVG_ICONS.comments;
+                        toggleBtn.setAttribute('aria-label', 'Открыть чат с QabyldauBot');
+                        toggleBtn.setAttribute('tabindex', '0');
 
                         this.container.appendChild(toggleBtn);
                         this.container.appendChild(widget);
@@ -973,6 +1110,20 @@
                         this.closeBtn.addEventListener('click', () => this.closeChat());
                         this.quickRepliesToggle.addEventListener('click', () => this.toggleQuickReplies());
                         this.sendButton.addEventListener('click', () => this.sendMessage());
+                        
+                        // Keyboard navigation for main elements
+                        this.toggleBtn.addEventListener('keydown', (e) => this.handleKeyDown(e, () => this.openChat()));
+                        this.closeBtn.addEventListener('keydown', (e) => this.handleKeyDown(e, () => this.closeChat()));
+                        this.quickRepliesToggle.addEventListener('keydown', (e) => this.handleKeyDown(e, () => this.toggleQuickReplies()));
+                        this.sendButton.addEventListener('keydown', (e) => this.handleKeyDown(e, () => this.sendMessage()));
+                        
+                        // Global ESC key handler
+                        document.addEventListener('keydown', (e) => {
+                            if (e.key === 'Escape' && this.isOpen) {
+                                this.closeChat();
+                            }
+                        });
+                        
                         this.inputField.addEventListener('keypress', (e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
@@ -980,14 +1131,20 @@
                             }
                         });
 
-                        this.categoryTabs.querySelectorAll('.category-tab').forEach(tab => {
+                        // Category tabs navigation
+                        this.categoryTabs.querySelectorAll('.category-tab').forEach((tab, index) => {
                             tab.addEventListener('click', (e) => {
                                 const category = e.target.dataset.category;
                                 this.setActiveCategory(category);
                                 this.loadQuickReplies(category);
                             });
+                            
+                            tab.addEventListener('keydown', (e) => {
+                                this.handleTabNavigation(e, index);
+                            });
                         });
 
+                        // Language switcher navigation
                         this.languageOptions.forEach(option => {
                             option.addEventListener('click', (e) => {
                                 const lang = e.target.dataset.lang;
@@ -995,10 +1152,66 @@
                                 this.language = lang;
                                 this.showWelcomeMessage();
                             });
+                            
+                            option.addEventListener('keydown', (e) => this.handleKeyDown(e, () => {
+                                const lang = e.target.dataset.lang;
+                                this.setActiveLanguage(lang);
+                                this.language = lang;
+                                this.showWelcomeMessage();
+                            }));
                         });
 
+                        // Scroll buttons navigation
                         this.scrollLeft.addEventListener('click', () => this.quickReplies.scrollBy({ left: -120, behavior: 'smooth' }));
                         this.scrollRight.addEventListener('click', () => this.quickReplies.scrollBy({ left: 120, behavior: 'smooth' }));
+                        this.scrollLeft.addEventListener('keydown', (e) => this.handleKeyDown(e, () => this.quickReplies.scrollBy({ left: -120, behavior: 'smooth' })));
+                        this.scrollRight.addEventListener('keydown', (e) => this.handleKeyDown(e, () => this.quickReplies.scrollBy({ left: 120, behavior: 'smooth' })));
+                    }
+
+                    // Enhanced keyboard navigation handler
+                    handleKeyDown(event, callback) {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            callback();
+                        }
+                    }
+
+                    // Tab navigation for category tabs
+                    handleTabNavigation(event, currentIndex) {
+                        const tabs = this.categoryTabs.querySelectorAll('.category-tab');
+                        let newIndex = currentIndex;
+                        
+                        switch(event.key) {
+                            case 'ArrowLeft':
+                                event.preventDefault();
+                                newIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
+                                break;
+                            case 'ArrowRight':
+                                event.preventDefault();
+                                newIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
+                                break;
+                            case 'Enter':
+                            case ' ':
+                                event.preventDefault();
+                                const category = tabs[currentIndex].dataset.category;
+                                this.setActiveCategory(category);
+                                this.loadQuickReplies(category);
+                                return;
+                            default:
+                                return;
+                        }
+                        
+                        // Update focus and selection
+                        tabs.forEach((tab, index) => {
+                            if (index === newIndex) {
+                                tab.focus();
+                                tab.setAttribute('tabindex', '0');
+                                tab.setAttribute('aria-selected', 'true');
+                            } else {
+                                tab.setAttribute('tabindex', '-1');
+                                tab.setAttribute('aria-selected', 'false');
+                            }
+                        });
                     }
 
                     setActiveLanguage(lang) {
@@ -1015,11 +1228,17 @@
                     }
 
                     setActiveCategory(category) {
-                        this.categoryTabs.querySelectorAll('.category-tab').forEach(tab => {
+                        this.categoryTabs.querySelectorAll('.category-tab').forEach((tab, index) => {
                             tab.classList.remove('active');
+                            tab.setAttribute('tabindex', '-1');
+                            tab.setAttribute('aria-selected', 'false');
                         });
                         const activeTab = this.categoryTabs.querySelector(`.category-tab[data-category="${category}"]`);
-                        if (activeTab) activeTab.classList.add('active');
+                        if (activeTab) {
+                            activeTab.classList.add('active');
+                            activeTab.setAttribute('tabindex', '0');
+                            activeTab.setAttribute('aria-selected', 'true');
+                        }
                         this.currentCategory = category;
                     }
 
@@ -1030,11 +1249,15 @@
                     openChat() {
                         this.widget.classList.add('active');
                         this.isOpen = true;
-                        this.inputField.focus();
                         this.toggleBtn.style.display = 'none';
                         this.unreadCount = 0;
                         this.updateUnreadBadge();
-                        setTimeout(() => this.scrollToBottom(), 300);
+                        
+                        // Set focus on input field with a slight delay for better UX
+                        setTimeout(() => {
+                            this.inputField.focus();
+                            this.scrollToBottom();
+                        }, 300);
                     }
 
                     closeChat() {
@@ -1042,6 +1265,8 @@
                         this.isOpen = false;
                         setTimeout(() => {
                             this.toggleBtn.style.display = 'flex';
+                            // Return focus to the toggle button
+                            this.toggleBtn.focus();
                         }, 300);
                     }
 
@@ -1134,9 +1359,13 @@
                     loadQuickReplies(category = 'main', highlightItems = []) {
                         const replies = QUICK_REPLIES_DATA[category] || QUICK_REPLIES_DATA.main;
                         this.quickReplies.innerHTML = '';
-                        replies.forEach(item => {
+                        replies.forEach((item, index) => {
                             const btn = document.createElement('div');
                             btn.className = 'quick-reply';
+                            btn.setAttribute('role', 'button');
+                            btn.setAttribute('tabindex', '0');
+                            btn.setAttribute('aria-label', `Быстрый ответ: ${item.text}`);
+                            
                             if (highlightItems && highlightItems.includes(item.text)) {
                                 btn.classList.add('highlight');
                             }
@@ -1144,13 +1373,44 @@
                                 <span class="icon">${item.icon || ''}</span>
                                 <span>${item.text}</span>
                             `;
-                            btn.onclick = () => {
+                            
+                            const clickHandler = () => {
                                 this.inputField.value = item.text;
                                 this.sendMessage();
                                 btn.classList.remove('highlight');
                             };
+                            
+                            btn.onclick = clickHandler;
+                            btn.addEventListener('keydown', (e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    clickHandler();
+                                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                                    this.handleQuickReplyNavigation(e, index, replies.length);
+                                }
+                            });
+                            
                             this.quickReplies.appendChild(btn);
                         });
+                    }
+
+                    // Navigation for quick reply buttons
+                    handleQuickReplyNavigation(event, currentIndex, totalCount) {
+                        const quickReplyButtons = this.quickReplies.querySelectorAll('.quick-reply');
+                        let newIndex = currentIndex;
+                        
+                        if (event.key === 'ArrowLeft') {
+                            event.preventDefault();
+                            newIndex = currentIndex > 0 ? currentIndex - 1 : totalCount - 1;
+                        } else if (event.key === 'ArrowRight') {
+                            event.preventDefault();
+                            newIndex = currentIndex < totalCount - 1 ? currentIndex + 1 : 0;
+                        }
+                        
+                        if (quickReplyButtons[newIndex]) {
+                            quickReplyButtons[newIndex].focus();
+                            quickReplyButtons[newIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
                     }
 
                     suggestRelevantReplies(userMessage) {
@@ -1193,6 +1453,7 @@
                                 if (response.status === 503) { errText = 'Сервер перегружен или недоступен (503). Попробуйте позже.'; }
                                 this.hideTyping();
                                 this.addMessage('bot', errText);
+                                this.showErrorAlert('Ошибка сети', errText);
                                 return;
                             }
                             const data = await response.json();
@@ -1208,9 +1469,18 @@
                                     resultsTab.className = 'category-tab';
                                     resultsTab.dataset.category = 'results';
                                     resultsTab.textContent = 'Результаты';
+                                    resultsTab.setAttribute('role', 'tab');
+                                    resultsTab.setAttribute('tabindex', '-1');
+                                    resultsTab.setAttribute('aria-selected', 'false');
+                                    resultsTab.setAttribute('aria-label', 'Результаты поиска');
                                     resultsTab.addEventListener('click', () => {
                                         this.setActiveCategory('results');
                                         this.loadQuickReplies('results');
+                                    });
+                                    resultsTab.addEventListener('keydown', (e) => {
+                                        const tabs = Array.from(this.categoryTabs.querySelectorAll('.category-tab'));
+                                        const index = tabs.indexOf(resultsTab);
+                                        this.handleTabNavigation(e, index);
                                     });
                                     this.categoryTabs.appendChild(resultsTab);
                                 }
@@ -1220,11 +1490,57 @@
                         } catch (error) {
                             console.error('Error sending message:', error);
                             this.hideTyping();
-                            this.addMessage('bot', 'Извините, произошла ошибка соединения. Проверьте интернет и попробуйте снова.');
+                            const errorMessage = 'Извините, произошла ошибка соединения. Проверьте интернет и попробуйте снова.';
+                            this.addMessage('bot', errorMessage);
+                            this.showErrorAlert('Ошибка соединения', errorMessage);
                         } finally {
                             this.sendButton.disabled = false;
                             this.inputField.focus();
                         }
+                    }
+
+                    // Show visual error alert
+                    showErrorAlert(title, message) {
+                        // Remove any existing error alerts
+                        const existingAlert = this.chatMessages.querySelector('.error-alert');
+                        if (existingAlert) {
+                            existingAlert.remove();
+                        }
+                        
+                        const errorAlert = document.createElement('div');
+                        errorAlert.className = 'error-alert';
+                        errorAlert.setAttribute('role', 'alert');
+                        errorAlert.setAttribute('aria-live', 'assertive');
+                        errorAlert.innerHTML = `
+                            <div class="error-alert-content">
+                                <div class="error-alert-icon">${SVG_ICONS.info}</div>
+                                <div class="error-alert-text">
+                                    <strong>${title}:</strong> ${message}
+                                </div>
+                                <button class="error-alert-close" aria-label="Закрыть уведомление об ошибке" tabindex="0">
+                                    ${SVG_ICONS.times}
+                                </button>
+                            </div>
+                        `;
+                        
+                        const closeBtn = errorAlert.querySelector('.error-alert-close');
+                        closeBtn.addEventListener('click', () => errorAlert.remove());
+                        closeBtn.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                errorAlert.remove();
+                            }
+                        });
+                        
+                        this.chatMessages.appendChild(errorAlert);
+                        this.scrollToBottom();
+                        
+                        // Auto-remove after 10 seconds
+                        setTimeout(() => {
+                            if (errorAlert.parentNode) {
+                                errorAlert.remove();
+                            }
+                        }, 10000);
                     }
 
                     getHorizontalPosition() {
