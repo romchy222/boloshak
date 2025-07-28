@@ -1,18 +1,33 @@
+# Импорт моделей базы данных для работы с категориями, FAQ и администраторами
 from models import Category, FAQ, AdminUser
+# Импорт объекта базы данных для операций с БД
 from app import db
+# Импорт модуля логирования для отслеживания процесса инициализации
 import logging
 
+# Настройка логгера для данного модуля
 logger = logging.getLogger(__name__)
 
 def init_default_data():
-    """Initialize database with default data"""
+    """
+    Инициализация базы данных с тестовыми/стандартными данными
+    
+    Функция создает базовые категории, FAQ и администратора для начальной работы системы.
+    Выполняется только при первом запуске, если данные еще не существуют.
+    Включает в себя:
+    - Создание категорий FAQ (Поступление, Документы, Программы обучения, Стоимость)
+    - Добавление базовых вопросов и ответов на русском и казахском языках
+    - Создание учетной записи администратора по умолчанию
+    """
     try:
-        # Check if data already exists
+        # Проверка существования данных в базе
+        # Если уже есть категории, то инициализация не нужна
         if Category.query.first() is not None:
             logger.info("Default data already exists, skipping initialization")
             return
         
-        # Create default categories
+        # Создание базовых категорий FAQ
+        # Данные структурированы для поддержки двух языков - русского и казахского
         categories_data = [
             {
                 'name_ru': 'Поступление',
@@ -40,61 +55,72 @@ def init_default_data():
             }
         ]
         
+        # Список для хранения созданных категорий (нужен для связи с FAQ)
         categories = []
+        
+        # Создание объектов категорий и добавление их в сессию БД
         for cat_data in categories_data:
             category = Category(**cat_data)
             db.session.add(category)
             categories.append(category)
         
-        db.session.flush()  # Get IDs for categories
+        # Выполнение flush для получения ID созданных категорий
+        # без финального commit (нужно для связи с FAQ)
+        db.session.flush()
         
-        # Create default FAQs
+        # Создание базовых FAQ с вопросами и ответами
+        # Каждый FAQ содержит вопрос и ответ на двух языках
         faqs_data = [
             {
                 'question_ru': 'Как поступить в университет Болашак?',
                 'question_kz': 'Болашақ университетіне қалай түсуге болады?',
                 'answer_ru': 'Для поступления необходимо подать документы в приемную комиссию, сдать вступительные экзамены или предоставить результаты ЕНТ.',
                 'answer_kz': 'Түсу үшін қабылдау комиссиясына құжаттар тапсыру, кіру емтихандарын тапсыру немесе БТ нәтижелерін ұсыну қажет.',
-                'category_id': categories[0].id
+                'category_id': categories[0].id  # Привязка к категории "Поступление"
             },
             {
                 'question_ru': 'Какие документы нужны для поступления?',
                 'question_kz': 'Түсу үшін қандай құжаттар қажет?',
                 'answer_ru': 'Аттестат о среднем образовании, справка о состоянии здоровья, фотографии 3x4, копия удостоверения личности.',
                 'answer_kz': 'Орта білім туралы аттестат, денсаулық жағдайы туралы анықтама, 3x4 фотосуреттер, жеке куәліктің көшірмесі.',
-                'category_id': categories[1].id
+                'category_id': categories[1].id  # Привязка к категории "Документы"
             },
             {
                 'question_ru': 'Какие специальности есть в университете?',
                 'question_kz': 'Университетте қандай мамандықтар бар?',
                 'answer_ru': 'В университете есть специальности по IT, экономике, педагогике, медицине, инженерии и другим направлениям.',
                 'answer_kz': 'Университетте IT, экономика, педагогика, медицина, инженерия және басқа да бағыттар бойынша мамандықтар бар.',
-                'category_id': categories[2].id
+                'category_id': categories[2].id  # Привязка к категории "Программы обучения"
             },
             {
                 'question_ru': 'Сколько стоит обучение?',
                 'question_kz': 'Оқу қанша тұрады?',
                 'answer_ru': 'Стоимость обучения зависит от специальности. Подробную информацию можно получить в приемной комиссии.',
                 'answer_kz': 'Оқу құны мамандыққа байланысты. Толық ақпаратты қабылдау комиссиясынан алуға болады.',
-                'category_id': categories[3].id
+                'category_id': categories[3].id  # Привязка к категории "Стоимость обучения"
             }
         ]
         
+        # Создание объектов FAQ и добавление их в сессию БД
         for faq_data in faqs_data:
             faq = FAQ(**faq_data)
             db.session.add(faq)
         
-        # Create default admin user
+        # Создание учетной записи администратора по умолчанию
+        # ВАЖНО: В продакшене пароль должен быть изменен!
         admin = AdminUser(
-            username='admin',
-            email='admin@bolashak.edu.kz'
+            username='admin',                    # Имя пользователя администратора
+            email='admin@bolashak.edu.kz'       # Email администратора
         )
-        admin.set_password('admin123')  # Change this in production!
+        # Установка пароля с использованием хеширования
+        admin.set_password('admin123')  # ВНИМАНИЕ: Сменить в продакшене!
         db.session.add(admin)
         
+        # Фиксация всех изменений в базе данных
         db.session.commit()
         logger.info("Default data initialized successfully")
         
     except Exception as e:
+        # В случае ошибки логируем её и откатываем изменения
         logger.error(f"Error initializing default data: {str(e)}")
         db.session.rollback()

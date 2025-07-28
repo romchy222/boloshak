@@ -1,25 +1,51 @@
+# Импорт необходимых модулей Flask для создания административной панели
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+# Импорт утилит для безопасной работы с файлами
 from werkzeug.utils import secure_filename
+# Импорт моделей базы данных
 from models import Category, FAQ, UserQuery, AdminUser, Document, WebSource, KnowledgeBase
+# Импорт объекта базы данных
 from app import db
+# Импорт модулей для работы с датами и SQL функциями
 from datetime import datetime, timedelta
 from sqlalchemy import func
+# Импорт модулей для логирования и работы с файлами
 import logging
 import os
 import mimetypes
+# Импорт классов для обработки документов и веб-контента
 from document_processor import DocumentProcessor, WebScraper, KnowledgeBaseUpdater
 
+# Создание Blueprint для административных маршрутов
 admin_bp = Blueprint('admin', __name__)
+# Настройка логгера для данного модуля
 logger = logging.getLogger(__name__)
 
 def admin_required(f):
-    """Decorator to require admin authentication"""
+    """
+    Декоратор для требования аутентификации администратора
+    
+    Проверяет наличие активной сессии администратора перед выполнением
+    функции. Если пользователь не аутентифицирован, перенаправляет
+    на страницу входа.
+    
+    Аргументы:
+        f: Функция-представление, требующая аутентификации
+        
+    Возвращает:
+        Обернутую функцию с проверкой аутентификации
+    """
     from functools import wraps
+    
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Проверка наличия ID администратора в сессии
         if 'admin_id' not in session:
+            # Перенаправление на страницу входа, если не аутентифицирован
             return redirect(url_for('admin.login'))
+        # Выполнение оригинальной функции, если аутентифицирован
         return f(*args, **kwargs)
+    
     return decorated_function
 
 @admin_bp.route('/')
