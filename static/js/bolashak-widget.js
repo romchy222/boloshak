@@ -827,8 +827,6 @@
     #bolashakChatWidget .error-alert-close:hover,
     #bolashakChatWidget .error-alert-close:focus {
         background: rgba(0, 0, 0, 0.1);
-        outline: 2px solid #fdcb6e;
-        outline-offset: 1px;
     }
     
     @keyframes slideInAlert {
@@ -848,8 +846,6 @@
     #bolashakChatWidget .category-tab:focus,
     #bolashakChatWidget .language-option:focus,
     #bolashakChatWidget input:focus {
-        outline: 2px solid #0056b3;
-        outline-offset: 2px;
     }
     
     /* High contrast mode support */
@@ -876,9 +872,7 @@
             transform: none !important;
         }
         
-        #bolashakChatWidget .message {
-            animation: none !important;
-        }
+        #bolashakChatWidget .message { }
     }
     `;
     const EXTRA_CSS = `
