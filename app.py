@@ -10,66 +10,74 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
 
+
 # Базовый класс для моделей базы данных
 class Base(DeclarativeBase):
     pass
 
+
 # Инициализация объекта базы данных
 db = SQLAlchemy(model_class=Base)
+
 
 def create_app():
     """Функция создания и настройки Flask приложения"""
     # Создание экземпляра Flask приложения
     app = Flask(__name__)
     # Установка секретного ключа для сессий
-    app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+    app.secret_key = os.environ.get("SESSION_SECRET",
+                                    "dev-secret-key-change-in-production")
     # Настройка ProxyFix для работы за прокси
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-    
+
     # Настройка базы данных
     database_url = os.environ.get("DATABASE_URL", "sqlite:///bolashakbot.db")
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     # Настройки движка базы данных
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_recycle": 300,      # Переподключение каждые 5 минут
-        "pool_pre_ping": True,    # Проверка соединения перед использованием
+        "pool_recycle": 300,  # Переподключение каждые 5 минут
+        "pool_pre_ping": True,  # Проверка соединения перед использованием
     }
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    
+
     # Инициализация базы данных с приложением
     db.init_app(app)
-    
+
     # Настройка CORS (разрешение кросс-доменных запросов)
-    CORS(app, origins=[
-        "https://7a0463a0-cbab-40ed-8964-1461cf93cb8a-00-tv6bvx5wqo3s.pike.replit.dev",
-        "https://*.replit.dev",  # Разрешить все поддомены replit.dev
-        "http://localhost:*",    # Для локальной разработки
-        "https://localhost:*"    # Для локальной разработки с HTTPS
-    ], supports_credentials=True)
-    
+    CORS(
+        app,
+        origins=[
+            "https://7a0463a0-cbab-40ed-8964-1461cf93cb8a-00-tv6bvx5wqo3s.pike.replit.dev",
+            "https://*.replit.dev",  # Разрешить все поддомены replit.dev
+            "http://localhost:*",  # Для локальной разработки
+            "https://localhost:*"  # Для локальной разработки с HTTPS
+        ],
+        supports_credentials=True)
+
     # Импорт модулей с маршрутами (blueprints)
     from views import main_bp
     from admin import admin_bp
     from auth import auth_bp
-    
+
     # Регистрация модулей маршрутов
-    app.register_blueprint(main_bp)                    # Основные страницы
+    app.register_blueprint(main_bp)  # Основные страницы
     app.register_blueprint(admin_bp, url_prefix='/admin')  # Админ панель
-    app.register_blueprint(auth_bp, url_prefix='/auth')    # Аутентификация
-    
+    app.register_blueprint(auth_bp, url_prefix='/auth')  # Аутентификация
+
     # Инициализация в контексте приложения
     with app.app_context():
         # Импорт моделей для регистрации в SQLAlchemy
         import models
-        
+
         # Создание всех таблиц в базе данных
         db.create_all()
-        
+
         # Инициализация начальных данных
         from setup_db import init_default_data
         init_default_data()
-    
+
     return app
+
 
 # Создание экземпляра приложения
 app = create_app()

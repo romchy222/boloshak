@@ -85,8 +85,8 @@
         </div>
         <div class="chat-controls">
             <select id="languageSelect">
-                <option value="ru">Русский</option>
-                <option value="kz">Қазақша</option>
+                <option class="option-style" value="ru">Русский</option>
+                <option class="option-style" value="kz">Қазақша</option>
             </select>
             <button onclick="toggleChat()">
                 <i class="fas fa-times"></i>
@@ -116,7 +116,7 @@
             </div>
         </div>
     
-    
+    <!-- быстрые тут... -->
     <div class="quick-replies-container">
         <button class="scroll-btn left" onclick="scrollQuickReplies(-100)">&lt;</button>
         <div class="quick-replies" id="quickReplies">
@@ -125,6 +125,7 @@
         <button class="scroll-btn right" onclick="scrollQuickReplies(100)">&gt;</button>
     </div>
 
+    
     <div class="chat-input-container">
         <div class="input-group">
             <input type="text" id="chatInput" class="form-control" 
