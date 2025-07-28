@@ -46,7 +46,7 @@
         --bg-dark: #1a202c;
         --bg-panel: #ffffff;
         --bg-messages: #f5f7fb;
-        --border-radius-lg: 16px;
+        --border-radius-lg: 8px;
         --border-radius-md: 12px;
         --border-radius-sm: 8px;
         --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
