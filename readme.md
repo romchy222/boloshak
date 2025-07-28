@@ -1,113 +1,113 @@
-# BolashakBot - University Chatbot System
+# BolashakBot — Система университетского чат-бота
 
-## Overview
+## Общее описание
 
-BolashakBot is a bilingual (Russian/Kazakh) chatbot system designed for Kyzylorda "Bolashak" University to help prospective students get information about admissions, programs, and requirements. The system uses Flask as the web framework and integrates with Mistral AI for intelligent responses based on an FAQ database.
+BolashakBot — это билингвальная (русский/казахский) система чат-бота, разработанная для Кызылординского университета «Болашак», чтобы помочь абитуриентам получить информацию о поступлении, программах и требованиях. Система использует Flask как веб-фреймворк и интегрируется с Mistral AI для интеллектуальных ответов на основе базы знаний FAQ.
 
-## User Preferences
+## Предпочтения пользователя
 
-Preferred communication style: Simple, everyday language.
-Widget design requirements: Minimal, clean layout matching university website style (white background, gray/black text, no bright accent colors).
+Стиль общения: простой, разговорный язык.  
+Требования к дизайну виджета: минималистичный, чистый интерфейс в стиле сайта университета (белый фон, серый/чёрный текст, без ярких акцентных цветов).
 
-## System Architecture
+## Архитектура системы
 
-The application follows a traditional web application architecture with the following key components:
+Приложение построено по традиционной архитектуре веб-приложения с ключевыми компонентами:
 
-### Frontend
-- **Technology**: HTML5, Bootstrap 5, vanilla JavaScript
-- **Interface**: Single-page application with an embedded chat widget
-- **Styling**: Custom CSS with Bootstrap framework and Font Awesome icons
-- **Responsive Design**: Mobile-friendly interface with collapsible navigation
+### Фронтенд
+- **Технологии:** HTML5, Bootstrap 5, чистый JavaScript
+- **Интерфейс:** одностраничное приложение с встроенным виджетом чата
+- **Стилизация:** пользовательский CSS с фреймворком Bootstrap и иконками Font Awesome
+- **Адаптивность:** мобильная версия с разворачивающейся навигацией
 
-### Backend
-- **Framework**: Flask (Python web framework)
-- **Architecture Pattern**: Blueprint-based modular structure
-- **Database ORM**: SQLAlchemy with Flask-SQLAlchemy extension
-- **Session Management**: Flask sessions for admin authentication
-- **API Design**: RESTful endpoints for chat functionality
+### Бэкенд
+- **Фреймворк:** Flask (Python)
+- **Архитектурный паттерн:** модульная структура с Blueprint
+- **ORM:** SQLAlchemy с расширением Flask-SQLAlchemy
+- **Управление сессиями:** Flask-сессии для аутентификации администратора
+- **API:** RESTful endpoints для работы чата
 
-### Database Design
-- **Default Database**: SQLite (configured for development)
-- **Production Ready**: Configurable for PostgreSQL via DATABASE_URL environment variable
-- **Schema**: Relational database with proper foreign key relationships
-- **Migration Support**: SQLAlchemy-based table creation and management
+### Дизайн базы данных
+- **По умолчанию:** SQLite (для разработки)
+- **Готово к продакшену:** возможность настройки PostgreSQL через переменную окружения DATABASE_URL
+- **Схема:** реляционная БД с корректными внешними ключами
+- **Миграции:** управление таблицами через SQLAlchemy
 
-## Key Components
+## Ключевые компоненты
 
-### Models (`models.py`)
-- **Category**: Bilingual categories for organizing FAQs
-- **FAQ**: Bilingual question-answer pairs with category relationships
-- **UserQuery**: Conversation logs with analytics data
-- **AdminUser**: Authentication system for administrative access
+### Модели (`models.py`)
+- **Category:** Билингвальные категории для организации FAQ
+- **FAQ:** Пары вопрос-ответ на двух языках с привязкой к категориям
+- **UserQuery:** Логи диалогов с аналитикой
+- **AdminUser:** Система авторизации для административного доступа
 
 ### Blueprints
-- **Main Blueprint** (`views.py`): Public chat interface and API endpoints
-- **Admin Blueprint** (`admin.py`): Administrative dashboard and management
-- **Auth Blueprint** (`auth.py`): Authentication and session management
+- **Главный** (`views.py`): публичный чат и API
+- **Админ** (`admin.py`): админ-панель и управление
+- **Аутентификация** (`auth.py`): авторизация и сессии
 
-### AI Integration
-- **Mistral AI Client** (`mistral_client.py`): External API integration for natural language processing
-- **Context Retrieval** (`utils.py`): FAQ database search and context preparation
-- **Bilingual Support**: Language-specific system prompts and responses
+### Интеграция ИИ
+- **Клиент Mistral AI** (`mistral_client.py`): интеграция с внешним API для обработки естественного языка
+- **Получение контекста** (`utils.py`): поиск по базе FAQ и подготовка контекста
+- **Билингвальная поддержка:** языковые системные подсказки и ответы
 
-### Administrative Features
-- **Dashboard**: Analytics and statistics overview
-- **FAQ Management**: CRUD operations for questions and answers
-- **Category Management**: Organization system for content
-- **Query Analytics**: User interaction tracking and performance metrics
+### Административные функции
+- **Дашборд:** статистика и аналитика
+- **Управление FAQ:** создание, редактирование и удаление вопросов и ответов
+- **Управление категориями:** организация контента
+- **Аналитика диалогов:** отслеживание взаимодействий пользователей и метрик
 
-## Data Flow
+## Поток данных
 
-1. **User Interaction**: User sends message through chat widget
-2. **Context Retrieval**: System searches FAQ database for relevant content
-3. **AI Processing**: Mistral AI generates response using retrieved context
-4. **Response Delivery**: Formatted response sent back to user
-5. **Analytics Logging**: Interaction data stored for admin analysis
+1. **Взаимодействие пользователя:** сообщение через виджет чата
+2. **Получение контекста:** поиск релевантной информации в базе FAQ
+3. **Обработка ИИ:** генерация ответа Mistral AI с учётом контекста
+4. **Доставка ответа:** отправка отформатированного ответа пользователю
+5. **Логирование аналитики:** сохранение данных для анализа в админке
 
-### API Endpoints
-- `POST /api/chat`: Main chat endpoint for user messages
-- `GET /auth/verify-session`: Admin session verification
-- Admin routes under `/admin/` prefix for management functions
+### API endpoints
+- `POST /api/chat`: основной endpoint для сообщений пользователя
+- `GET /auth/verify-session`: проверка сессии администратора
+- Админ-маршруты с префиксом `/admin/` для функций управления
 
-## External Dependencies
+## Внешние зависимости
 
-### Third-Party Services
-- **Mistral AI API**: Primary AI service for generating responses
-- **Bootstrap CDN**: Frontend styling framework
-- **Font Awesome CDN**: Icon library
+### Сторонние сервисы
+- **Mistral AI API:** основной сервис ИИ для генерации ответов
+- **Bootstrap CDN:** фреймворк для стилизации фронтенда
+- **Font Awesome CDN:** библиотека иконок
 
-### Python Packages
-- **Flask**: Web framework and routing
-- **SQLAlchemy**: Database ORM and management
-- **Werkzeug**: Security utilities (password hashing, proxy handling)
-- **Requests**: HTTP client for external API calls
+### Python-пакеты
+- **Flask:** маршрутизация и веб-фреймворк
+- **SQLAlchemy:** ORM и управление БД
+- **Werkzeug:** утилиты безопасности (хэширование паролей, прокси)
+- **Requests:** HTTP-клиент для внешних API
 
-### Environment Variables
-- `DATABASE_URL`: Database connection string
-- `MISTRAL_API_KEY`: API key for Mistral AI service
-- `SESSION_SECRET`: Secret key for session management
+### Переменные окружения
+- `DATABASE_URL`: строка подключения к базе данных
+- `MISTRAL_API_KEY`: ключ API для сервиса Mistral AI
+- `SESSION_SECRET`: секрет для управления сессиями
 
-## Deployment Strategy
+## Стратегия деплоя
 
-### Development Setup
-- **Entry Point**: `main.py` with debug mode enabled
-- **Local Database**: SQLite with automatic table creation
-- **Hot Reload**: Flask development server with debug=True
+### Разработка
+- **Точка входа:** `main.py` (debug режим)
+- **Локальная БД:** SQLite с автоматическим созданием таблиц
+- **Hot reload:** сервер Flask с debug=True
 
-### Production Considerations
-- **Database**: Configurable via DATABASE_URL for PostgreSQL
-- **Security**: Environment-based configuration for secrets
-- **Proxy Support**: ProxyFix middleware for reverse proxy deployment
-- **Session Management**: Secure session handling with configurable secrets
+### Продакшен
+- **База данных:** настройка PostgreSQL через DATABASE_URL
+- **Безопасность:** конфигурация секретов через переменные
+- **Прокси:** поддержка ProxyFix middleware для обратного прокси
+- **Сессии:** безопасная обработка сессий с настройками секретов
 
-### Database Initialization
-- **Setup Script**: `setup_db.py` for default data initialization
-- **Database Utils**: `database.py` for table management and reset functionality
-- **Default Content**: Pre-configured categories and sample FAQ entries
+### Инициализация БД
+- **Скрипт:** `setup_db.py` для инициализации данных
+- **Утилиты:** `database.py` для управления таблицами и сброса
+- **Дефолтный контент:** предустановленные категории и примеры FAQ
 
-### Performance Features
-- **Connection Pooling**: SQLAlchemy engine options for connection management
-- **Response Time Tracking**: Performance analytics for optimization
-- **Caching Ready**: Structure supports future caching implementation
+### Производительность
+- **Пул соединений:** опции SQLAlchemy для управления соединениями
+- **Трекинг времени ответа:** аналитика для оптимизации
+- **Готово к кешированию:** архитектура поддерживает внедрение кеша
 
-The system is designed to be easily deployable on various platforms with minimal configuration changes, while maintaining separation of concerns and modularity for future enhancements.
+Система легко развёртывается на различных платформах с минимальными изменениями конфигурации, сохраняя модульность и разделение ответственности для будущих расширений.
