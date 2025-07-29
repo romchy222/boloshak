@@ -1,109 +1,55 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AI Agents — Chat</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap Icons for UI elements -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+  <meta charset="UTF-8">
+  <title>BLACKBOXAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
 </head>
-<body class="cgpt-dark">
-    <div class="cgpt-root">
-        <!-- Sidebar -->
-        <aside class="cgpt-sidebar">
-            <div class="cgpt-sidebar-header">
-                <span class="cgpt-sidebar-title">ChatGPT</span>
-            </div>
-            <nav class="cgpt-sidebar-nav">
-                <ul>
-                    <li><i class="bi bi-plus-lg"></i> Новый чат</li>
-                    <li><i class="bi bi-search"></i> Поиск в чатах</li>
-                    <li><i class="bi bi-journal-bookmark"></i> Библиотека</li>
-                </ul>
-                <div class="cgpt-sidebar-section">
-                    <div class="cgpt-sidebar-label">AI-агенты</div>
-                    <ul id="agent-list">
-                        <li class="cgpt-agent-item active" data-agent="qabyldau">
-                            <i class="bi bi-person-badge"></i> QabyldauBot<br>
-                            <span class="cgpt-agent-desc">Поступление</span>
-                        </li>
-                        <li class="cgpt-agent-item" data-agent="consultant">
-                            <i class="bi bi-mortarboard"></i> Виртуальный консультант<br>
-                            <span class="cgpt-agent-desc">Студенты</span>
-                        </li>
-                        <li class="cgpt-agent-item" data-agent="navigator">
-                            <i class="bi bi-compass"></i> Студенческий навигатор<br>
-                            <span class="cgpt-agent-desc">Навигация</span>
-                        </li>
-                        <li class="cgpt-agent-item" data-agent="green">
-                            <i class="bi bi-briefcase"></i> GreenNavigator<br>
-                            <span class="cgpt-agent-desc">Выпускники</span>
-                        </li>
-                        <li class="cgpt-agent-item" data-agent="dorm">
-                            <i class="bi bi-house-door"></i> Агент по общежитию<br>
-                            <span class="cgpt-agent-desc">Быт и проживание</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="cgpt-sidebar-chats">
-                    <div class="cgpt-sidebar-label">Чаты</div>
-                    <ul>
-                        <li>Оценка дизайна</li>
-                        <li>Деплой Flask на сервере</li>
-                        <li>Параметры запуска CS:GO</li>
-                        <li>Дизайн сайта анализ</li>
-                        <li>Описание дизайна сайта</li>
-                        <!-- ... другие чаты ... -->
-                    </ul>
-                </div>
-            </nav>
-            <div class="cgpt-sidebar-footer">
-                <div class="cgpt-sidebar-user">
-                    <span class="cgpt-user-avatar"></span>
-                    <span class="cgpt-user-name">Roma Mitin</span>
-                    <span class="cgpt-user-status">Бесплатно</span>
-                </div>
-            </div>
-        </aside>
-        <!-- Main Chat Area -->
-        <div class="cgpt-main">
-            <header class="cgpt-topbar">
-                <button class="cgpt-topbar-btn">Получить Plus</button>
-                <span class="cgpt-current-agent" id="current-agent-label">
-                    <i class="bi bi-person-badge"></i> QabyldauBot
-                </span>
-            </header>
-            <main class="cgpt-chat-area">
-                <div class="cgpt-welcome" id="welcome-message">
-                    <h2 id="welcome-title">Чем я могу помочь?</h2>
-                </div>
-                <div class="cgpt-chatbox">
-                    <form id="cgpt-chat-form" autocomplete="off">
-                        <div class="cgpt-chat-input-row">
-                            <textarea
-                                id="cgpt-chat-input"
-                                class="cgpt-chat-input"
-                                rows="1"
-                                placeholder="Попросите что-нибудь..."
-                                autofocus
-                            ></textarea>
-                            <button type="submit" class="cgpt-send-btn" aria-label="Отправить">
-                                <i class="bi bi-send"></i>
-                            </button>
-                        </div>
-                        <div class="cgpt-tools-row">
-                            <button class="cgpt-tools-btn" type="button">
-                                <i class="bi bi-sliders"></i>
-                                Инструменты
-                            </button>
-                        </div>
-                    </form>
-                    <div id="cgpt-messages" class="cgpt-messages"></div>
-                </div>
-            </main>
+<body>
+  <header class="bbx-header">
+    <button class="bbx-menu">&#9776;</button>
+    <span class="bbx-logo">BLACKBOXAI</span>
+    <span class="bbx-dropdown">&#9662;</span>
+  </header>
+  <main>
+    <div class="bbx-content">
+      <h1 class="bbx-title">Ask Blackbox AI Anything</h1>
+      <div class="bbx-centerbox">
+        <div class="bbx-chatbox">
+          <input type="text" class="bbx-input" placeholder="Message Blackbox or @mention agent">
+          <button class="bbx-send"><span>&uarr;</span></button>
         </div>
+        <div class="bbx-row bbx-tools">
+          <span class="bbx-tool"><span class="bbx-ico">&#127760;</span>Auto</span>
+          <span class="bbx-tool"><span class="bbx-ico">&#128241;</span>App Builder</span>
+          <span class="bbx-tool"><span class="bbx-ico">&#128230;</span>Deep Research</span>
+          <span class="bbx-tool"><span class="bbx-ico">&#9889;</span>Think</span>
+          <span class="bbx-tool"><span class="bbx-ico">&#128247;</span>Image Gen <span class="bbx-ico">&#9662;</span></span>
+          <span class="bbx-tool"><span class="bbx-ico">&#128206;</span>Upload</span>
+          <span class="bbx-tool"><span class="bbx-ico">+</span>Multi-Panel</span>
+          <span class="bbx-tool"><span class="bbx-ico">&#128269;</span>Select Models <span class="bbx-ico">&#9662;</span></span>
+        </div>
+      </div>
     </div>
-    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+  </main>
+  <footer class="bbx-footer">
+    <div class="bbx-bottom">
+      <span class="bbx-new">New</span>
+      <span class="bbx-bottom-text">Experience the power of BLACKBOX IDE - Code faster with AI Agents.</span>
+      <button class="bbx-download">Download</button>
+    </div>
+    <div class="bbx-socials">
+      <span>Follow us on</span>
+      <span class="bbx-soc">X</span>
+      <span class="bbx-soc">YouTube</span>
+      <span class="bbx-soc">&#9881;</span>
+    </div>
+    <div class="bbx-terms">
+      By using Blackbox you agree to the <u>Terms</u> and <u>Privacy</u>.
+    </div>
+  </footer>
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 </body>
 </html>
