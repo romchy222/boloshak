@@ -1,5 +1,5 @@
 from models import Category, FAQ, AdminUser
-from app import db
+from database import db
 import logging
 
 logger = logging.getLogger(__name__)

@@ -1,4 +1,11 @@
-from app import db
+# database.py - separate database instance
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass
+
+db = SQLAlchemy(model_class=Base)
 from models import Category, FAQ, UserQuery, AdminUser
 import logging
 

@@ -2,22 +2,12 @@
 import os
 import logging
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from database import db
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
-
-
-# Базовый класс для моделей базы данных
-class Base(DeclarativeBase):
-    pass
-
-
-# Инициализация объекта базы данных
-db = SQLAlchemy(model_class=Base)
 
 
 def create_app():
@@ -54,16 +44,6 @@ def create_app():
         ],
         supports_credentials=True)
 
-    # Импорт модулей с маршрутами (blueprints)
-    from views import main_bp
-    from admin import admin_bp
-    from auth import auth_bp
-
-    # Регистрация модулей маршрутов
-    app.register_blueprint(main_bp)  # Основные страницы
-    app.register_blueprint(admin_bp, url_prefix='/admin')  # Админ панель
-    app.register_blueprint(auth_bp, url_prefix='/auth')  # Аутентификация
-
     # Инициализация в контексте приложения
     with app.app_context():
         # Импорт моделей для регистрации в SQLAlchemy
@@ -75,6 +55,16 @@ def create_app():
         # Инициализация начальных данных
         from setup_db import init_default_data
         init_default_data()
+
+    # Импорт модулей с маршрутами (blueprints) ПОСЛЕ инициализации БД
+    from views import main_bp
+    from admin import admin_bp
+    from auth import auth_bp
+
+    # Регистрация модулей маршрутов
+    app.register_blueprint(main_bp)  # Основные страницы
+    app.register_blueprint(admin_bp, url_prefix='/admin')  # Админ панель
+    app.register_blueprint(auth_bp, url_prefix='/auth')  # Аутентификация
 
     return app
 

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from models import AdminUser
-from app import db
+from database import db
 import logging
 
 auth_bp = Blueprint('auth', __name__)

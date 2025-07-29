@@ -3,7 +3,7 @@ import time
 import logging
 from flask import Blueprint, render_template, request, jsonify, session
 from models import FAQ, UserQuery
-from app import db
+from database import db
 from mistral_client import MistralClient
 from utils import get_relevant_context
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from werkzeug.utils import secure_filename
 from models import Category, FAQ, UserQuery, AdminUser, Document, WebSource, KnowledgeBase
-from app import db
+from database import db
 from datetime import datetime, timedelta
 from sqlalchemy import func
 import logging
