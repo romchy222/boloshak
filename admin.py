@@ -77,6 +77,9 @@ def dashboard():
 def categories():
     """Manage categories"""
     try:
+        from models import Category
+        from app import db
+        
         page = request.args.get('page', 1, type=int)
         categories_list = Category.query.paginate(
             page=page, per_page=10, error_out=False
@@ -92,6 +95,9 @@ def categories():
 def add_category():
     """Add new category"""
     try:
+        from models import Category
+        from app import db
+        
         name_ru = request.form.get('name_ru', '').strip()
         name_kz = request.form.get('name_kz', '').strip()
         description_ru = request.form.get('description_ru', '').strip()
@@ -123,6 +129,8 @@ def add_category():
 def faqs():
     """Manage FAQs"""
     try:
+        from models import FAQ, Category
+        
         page = request.args.get('page', 1, type=int)
         category_id = request.args.get('category_id', type=int)
         
@@ -150,6 +158,9 @@ def faqs():
 def add_faq():
     """Add new FAQ"""
     try:
+        from models import FAQ
+        from app import db
+        
         question_ru = request.form.get('question_ru', '').strip()
         question_kz = request.form.get('question_kz', '').strip()
         answer_ru = request.form.get('answer_ru', '').strip()
@@ -183,6 +194,8 @@ def add_faq():
 def queries():
     """View user queries"""
     try:
+        from models import UserQuery
+        
         page = request.args.get('page', 1, type=int)
         language = request.args.get('language')
         
@@ -206,6 +219,9 @@ def queries():
 def login():
     """Admin login"""
     if request.method == 'POST':
+        from models import AdminUser
+        from app import db
+        
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         
@@ -222,13 +238,15 @@ def login():
     
     return render_template('admin/login.html')
 
-# Knowledge Management Routes
+# Knowledge Management Routes (simplified for now)
 
 @admin_bp.route('/documents')
 @admin_required
 def documents():
     """Manage documents"""
     try:
+        from models import Document
+        
         page = request.args.get('page', 1, type=int)
         documents_list = Document.query.filter_by(is_active=True).order_by(
             Document.created_at.desc()
@@ -240,102 +258,13 @@ def documents():
         flash('Ошибка при загрузке документов', 'error')
         return render_template('admin/documents.html', documents=None)
 
-@admin_bp.route('/documents/upload', methods=['POST'])
-@admin_required
-def upload_document():
-    """Upload and process document"""
-    try:
-        if 'file' not in request.files:
-            flash('Файл не выбран', 'error')
-            return redirect(url_for('admin.documents'))
-        
-        file = request.files['file']
-        title = request.form.get('title', '').strip()
-        
-        if file.filename == '':
-            flash('Файл не выбран', 'error')
-            return redirect(url_for('admin.documents'))
-        
-        if not title:
-            title = file.filename
-        
-        # Secure filename
-        filename = secure_filename(file.filename)
-        
-        # Get file type
-        file_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-        
-        # Save file
-        processor = DocumentProcessor()
-        file_path, file_size = processor.save_uploaded_file(file, filename)
-        
-        # Create document record
-        document = Document(
-            title=title,
-            filename=filename,
-            file_path=file_path,
-            file_type=file_type,
-            file_size=file_size,
-            uploaded_by=session['admin_id']
-        )
-        
-        db.session.add(document)
-        db.session.flush()  # Get document ID
-        
-        # Process document and update knowledge base
-        models_dict = {
-            'Document': Document,
-            'WebSource': WebSource,
-            'KnowledgeBase': KnowledgeBase
-        }
-        kb_updater = KnowledgeBaseUpdater(db, models_dict)
-        
-        if kb_updater.update_from_document(document.id):
-            flash('Документ успешно загружен и обработан', 'success')
-        else:
-            flash('Документ загружен, но возникла ошибка при обработке', 'warning')
-        
-        db.session.commit()
-        
-    except Exception as e:
-        logger.error(f"Error uploading document: {str(e)}")
-        flash('Ошибка при загрузке документа', 'error')
-        db.session.rollback()
-    
-    return redirect(url_for('admin.documents'))
-
-@admin_bp.route('/documents/<int:doc_id>/delete', methods=['POST'])
-@admin_required
-def delete_document(doc_id):
-    """Delete document"""
-    try:
-        document = Document.query.get_or_404(doc_id)
-        
-        # Remove from knowledge base
-        KnowledgeBase.query.filter_by(source_type='document', source_id=doc_id).delete()
-        
-        # Remove file
-        if os.path.exists(document.file_path):
-            os.remove(document.file_path)
-        
-        # Remove document record
-        db.session.delete(document)
-        db.session.commit()
-        
-        flash('Документ успешно удален', 'success')
-        
-    except Exception as e:
-        logger.error(f"Error deleting document {doc_id}: {str(e)}")
-        flash('Ошибка при удалении документа', 'error')
-        db.session.rollback()
-    
-    return redirect(url_for('admin.documents'))
-
 @admin_bp.route('/web-sources')
 @admin_required
 def web_sources():
     """Manage web sources"""
     try:
+        from models import WebSource
+        
         page = request.args.get('page', 1, type=int)
         sources_list = WebSource.query.filter_by(is_active=True).order_by(
             WebSource.created_at.desc()
@@ -347,109 +276,13 @@ def web_sources():
         flash('Ошибка при загрузке веб-источников', 'error')
         return render_template('admin/web_sources.html', sources=None)
 
-@admin_bp.route('/web-sources/add', methods=['POST'])
-@admin_required
-def add_web_source():
-    """Add web source"""
-    try:
-        title = request.form.get('title', '').strip()
-        url = request.form.get('url', '').strip()
-        frequency = request.form.get('frequency', 'manual')
-        
-        if not title or not url:
-            flash('Название и URL обязательны', 'error')
-            return redirect(url_for('admin.web_sources'))
-        
-        # Validate URL
-        scraper = WebScraper()
-        if not scraper.validate_url(url):
-            flash('URL недоступен или некорректен', 'error')
-            return redirect(url_for('admin.web_sources'))
-        
-        # Create web source
-        web_source = WebSource(
-            title=title,
-            url=url,
-            scrape_frequency=frequency,
-            added_by=session['admin_id']
-        )
-        
-        db.session.add(web_source)
-        db.session.flush()  # Get web source ID
-        
-        # Scrape content and update knowledge base
-        models_dict = {
-            'Document': Document,
-            'WebSource': WebSource,
-            'KnowledgeBase': KnowledgeBase
-        }
-        kb_updater = KnowledgeBaseUpdater(db, models_dict)
-        
-        if kb_updater.update_from_web_source(web_source.id):
-            flash('Веб-источник успешно добавлен и обработан', 'success')
-        else:
-            flash('Веб-источник добавлен, но возникла ошибка при обработке', 'warning')
-        
-        db.session.commit()
-        
-    except Exception as e:
-        logger.error(f"Error adding web source: {str(e)}")
-        flash('Ошибка при добавлении веб-источника', 'error')
-        db.session.rollback()
-    
-    return redirect(url_for('admin.web_sources'))
-
-@admin_bp.route('/web-sources/<int:source_id>/update', methods=['POST'])
-@admin_required
-def update_web_source(source_id):
-    """Update web source content"""
-    try:
-        models_dict = {
-            'Document': Document,
-            'WebSource': WebSource,
-            'KnowledgeBase': KnowledgeBase
-        }
-        kb_updater = KnowledgeBaseUpdater(db, models_dict)
-        
-        if kb_updater.update_from_web_source(source_id):
-            flash('Веб-источник успешно обновлен', 'success')
-        else:
-            flash('Ошибка при обновлении веб-источника', 'error')
-        
-    except Exception as e:
-        logger.error(f"Error updating web source {source_id}: {str(e)}")
-        flash('Ошибка при обновлении веб-источника', 'error')
-    
-    return redirect(url_for('admin.web_sources'))
-
-@admin_bp.route('/web-sources/<int:source_id>/delete', methods=['POST'])
-@admin_required
-def delete_web_source(source_id):
-    """Delete web source"""
-    try:
-        web_source = WebSource.query.get_or_404(source_id)
-        
-        # Remove from knowledge base
-        KnowledgeBase.query.filter_by(source_type='web', source_id=source_id).delete()
-        
-        # Remove web source record
-        db.session.delete(web_source)
-        db.session.commit()
-        
-        flash('Веб-источник успешно удален', 'success')
-        
-    except Exception as e:
-        logger.error(f"Error deleting web source {source_id}: {str(e)}")
-        flash('Ошибка при удалении веб-источника', 'error')
-        db.session.rollback()
-    
-    return redirect(url_for('admin.web_sources'))
-
 @admin_bp.route('/knowledge-base')
 @admin_required
 def knowledge_base():
     """View knowledge base"""
     try:
+        from models import KnowledgeBase
+        
         page = request.args.get('page', 1, type=int)
         source_type = request.args.get('source_type', '')
         
@@ -494,6 +327,9 @@ def logout():
 def agent_analytics():
     """Get agent usage analytics"""
     try:
+        from models import UserQuery
+        from app import db
+        
         # Get agent usage statistics
         agent_stats = db.session.query(
             UserQuery.agent_type,
@@ -519,7 +355,6 @@ def agent_analytics():
         ).all()
         
         # Get daily usage for the last 30 days
-        from datetime import datetime, timedelta
         thirty_days_ago = datetime.utcnow() - timedelta(days=30)
         
         daily_stats = db.session.query(
@@ -575,6 +410,9 @@ def agent_analytics():
 def analytics_summary():
     """Get summary analytics for dashboard"""
     try:
+        from models import UserQuery
+        from app import db
+        
         # Get total queries by agent
         agent_totals = db.session.query(
             UserQuery.agent_type,
