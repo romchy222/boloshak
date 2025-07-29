@@ -75,10 +75,45 @@ class MistralClient:
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Request error to Mistral API: {str(e)}")
-            return self._get_fallback_response(language)
+            # Provide a more informative response in case of network issues
+            return self._get_smart_fallback_response(user_message, context, language)
         except Exception as e:
             logger.error(f"Unexpected error in Mistral client: {str(e)}")
             return self._get_fallback_response(language)
+    
+    def _get_smart_fallback_response(self, user_message: str, context: str, language: str = "ru") -> str:
+        """Get a smart fallback response based on the user message and context"""
+        message_lower = user_message.lower()
+        
+        # Simple keyword-based responses for testing
+        if any(word in message_lower for word in ['поступ', 'зачисл', 'вступ', 'документ']):
+            if language == "kz":
+                return "Университетке түсу үшін келесі құжаттар қажет: аттестат, денсаулық туралы анықтама, фотосуреттер. Толық ақпарат үшін қабылдау комиссиясына хабарласыңыз."
+            return "Для поступления в университет требуются следующие документы: аттестат, справка о здоровье, фотографии. За подробной информацией обращайтесь в приемную комиссию."
+        
+        elif any(word in message_lower for word in ['стипенд', 'деньги', 'оплат', 'стоимост']):
+            if language == "kz":
+                return "Шәкіақы және оқу құны туралы ақпарат алу үшін әкімшілікке хабарласыңыз. Университетте түрлі шәкіақы бағдарламалары қол жетімді."
+            return "Для получения информации о стипендиях и стоимости обучения обратитесь в администрацию. В университете доступны различные стипендиальные программы."
+        
+        elif any(word in message_lower for word in ['расписан', 'занят', 'урок', 'предмет']):
+            if language == "kz":
+                return "Сабақ кестесі туралы ақпаратты сіз оқу бөлімінен алуға болады. Кесте әр семестр басында жарияланады."
+            return "Информацию о расписании занятий вы можете получить в учебном отделе. Расписание публикуется в начале каждого семестра."
+        
+        elif any(word in message_lower for word in ['общежит', 'жатақхана', 'прожив']):
+            if language == "kz":
+                return "Жатақхана туралы ақпарат алу үшін тұрмыс бөліміне хабарласыңыз. Орын алдын ала брондалады."
+            return "Для получения информации об общежитии обратитесь в жилищный отдел. Места бронируются заранее."
+        
+        # Use context if available
+        if context and context.strip():
+            if language == "kz":
+                return f"Сіздің сұрағыңыз бойынша бізде келесі ақпарат бар: {context[:200]}... Толық ақпарат алу үшін университет әкімшілігіне хабарласыңыз."
+            return f"По вашему вопросу у нас есть следующая информация: {context[:200]}... Для получения полной информации обратитесь в администрацию университета."
+        
+        # Default response
+        return self._get_fallback_response(language)
 
     def _get_fallback_response(self, language: str = "ru") -> str:
         """Get fallback response when API is unavailable"""

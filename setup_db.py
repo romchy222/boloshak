@@ -1,12 +1,13 @@
-from models import Category, FAQ, AdminUser
-from app import db
-import logging
-
-logger = logging.getLogger(__name__)
-
 def init_default_data():
     """Initialize database with default data"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
+        # Import here to avoid circular imports
+        from models import Category, FAQ, AdminUser
+        from app import db
+        
         # Check if data already exists
         if Category.query.first() is not None:
             logger.info("Default data already exists, skipping initialization")
@@ -97,4 +98,8 @@ def init_default_data():
         
     except Exception as e:
         logger.error(f"Error initializing default data: {str(e)}")
-        db.session.rollback()
+        try:
+            from app import db
+            db.session.rollback()
+        except:
+            pass
