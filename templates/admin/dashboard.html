@@ -2,6 +2,11 @@
 
 {% block title %}Панель администратора - BolashakBot{% endblock %}
 
+{% block head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -70,6 +75,68 @@
                             <i class="fas fa-clock fa-2x"></i>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Analytics Charts -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>Статистика агентов</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="agentUsageChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-language me-2"></i>Распределение по языкам</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="languageChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Response Time and Success Rate Charts -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Время ответа агентов</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="responseTimeChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Успешность агентов</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="successRateChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Usage Trend -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Активность агентов за последние 30 дней</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="dailyUsageChart" width="800" height="300"></canvas>
                 </div>
             </div>
         </div>
@@ -190,21 +257,39 @@
                                     <tr>
                                         <th>Время</th>
                                         <th>Сообщение пользователя</th>
+                                        <th>Агент</th>
                                         <th>Язык</th>
                                         <th>Время ответа</th>
+                                        <th>Уверенность</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for query in recent_queries %}
                                     <tr>
                                         <td>{{ query.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
-                                        <td>{{ query.user_message[:100] }}{% if query.user_message|length > 100 %}...{% endif %}</td>
+                                        <td>{{ query.user_message[:60] }}{% if query.user_message|length > 60 %}...{% endif %}</td>
+                                        <td>
+                                            {% if query.agent_name %}
+                                                <span class="badge bg-info">{{ query.agent_name }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Не определен</span>
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             <span class="badge bg-{{ 'primary' if query.language == 'ru' else 'success' }}">
                                                 {{ 'РУС' if query.language == 'ru' else 'ҚАЗ' }}
                                             </span>
                                         </td>
                                         <td>{{ "%.2f"|format(query.response_time or 0) }}s</td>
+                                        <td>
+                                            {% if query.agent_confidence %}
+                                                <span class="badge bg-{{ 'success' if query.agent_confidence >= 0.7 else 'warning' if query.agent_confidence >= 0.4 else 'danger' }}">
+                                                    {{ "%.1f"|format(query.agent_confidence * 100) }}%
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">-</span>
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -221,4 +306,253 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Chart colors
+const chartColors = {
+    primary: '#0d6efd',
+    success: '#198754',
+    danger: '#dc3545',
+    warning: '#ffc107',
+    info: '#0dcaf0',
+    secondary: '#6c757d',
+    purple: '#6f42c1',
+    pink: '#d63384',
+    orange: '#fd7e14'
+};
+
+// Load agent analytics data
+async function loadAgentAnalytics() {
+    try {
+        const [analyticsResponse, summaryResponse] = await Promise.all([
+            fetch('/admin/api/analytics/agents'),
+            fetch('/admin/api/analytics/summary')
+        ]);
+        
+        const analyticsData = await analyticsResponse.json();
+        const summaryData = await summaryResponse.json();
+        
+        // Create charts
+        createAgentUsageChart(summaryData.agent_totals);
+        createLanguageChart(analyticsData.language_stats);
+        createResponseTimeChart(analyticsData.agent_stats);
+        createSuccessRateChart(summaryData.success_rates);
+        createDailyUsageChart(analyticsData.daily_stats);
+        
+    } catch (error) {
+        console.error('Error loading analytics:', error);
+    }
+}
+
+// Agent Usage Pie Chart
+function createAgentUsageChart(data) {
+    const ctx = document.getElementById('agentUsageChart').getContext('2d');
+    const colors = Object.values(chartColors);
+    
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: data.map(item => item.agent_name || 'Неизвестный'),
+            datasets: [{
+                data: data.map(item => item.total),
+                backgroundColor: colors.slice(0, data.length),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.parsed} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Language Distribution Chart
+function createLanguageChart(data) {
+    const ctx = document.getElementById('languageChart').getContext('2d');
+    
+    // Aggregate by language
+    const languageData = data.reduce((acc, item) => {
+        acc[item.language] = (acc[item.language] || 0) + item.count;
+        return acc;
+    }, {});
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(languageData).map(lang => lang === 'ru' ? 'Русский' : 'Қазақша'),
+            datasets: [{
+                data: Object.values(languageData),
+                backgroundColor: [chartColors.primary, chartColors.success],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Response Time Bar Chart
+function createResponseTimeChart(data) {
+    const ctx = document.getElementById('responseTimeChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(item => item.agent_name || 'Неизвестный'),
+            datasets: [{
+                label: 'Среднее время ответа (сек)',
+                data: data.map(item => item.avg_response_time),
+                backgroundColor: chartColors.info,
+                borderColor: chartColors.info,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Секунды'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// Success Rate Chart
+function createSuccessRateChart(data) {
+    const ctx = document.getElementById('successRateChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(item => item.agent_type || 'Неизвестный'),
+            datasets: [{
+                label: 'Успешность (%)',
+                data: data.map(item => item.success_rate),
+                backgroundColor: data.map(item => 
+                    item.success_rate >= 70 ? chartColors.success :
+                    item.success_rate >= 50 ? chartColors.warning : chartColors.danger
+                ),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Процент успешности'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// Daily Usage Line Chart
+function createDailyUsageChart(data) {
+    const ctx = document.getElementById('dailyUsageChart').getContext('2d');
+    
+    // Group data by agent type
+    const agentTypes = [...new Set(data.map(item => item.agent_type))];
+    const dates = [...new Set(data.map(item => item.date))].sort();
+    
+    const datasets = agentTypes.map((agentType, index) => {
+        const agentData = dates.map(date => {
+            const item = data.find(d => d.date === date && d.agent_type === agentType);
+            return item ? item.count : 0;
+        });
+        
+        return {
+            label: agentType || 'Неизвестный',
+            data: agentData,
+            borderColor: Object.values(chartColors)[index % Object.keys(chartColors).length],
+            backgroundColor: Object.values(chartColors)[index % Object.keys(chartColors).length] + '20',
+            tension: 0.4,
+            fill: false
+        };
+    });
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates.map(date => new Date(date).toLocaleDateString('ru-RU')),
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Количество запросов'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Дата'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+}
+
+// Load analytics when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadAgentAnalytics();
+});
+</script>
 {% endblock %}

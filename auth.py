@@ -1,6 +1,4 @@
 from flask import Blueprint, request, jsonify, session
-from models import AdminUser
-from app import db
 import logging
 
 auth_bp = Blueprint('auth', __name__)
@@ -10,6 +8,8 @@ logger = logging.getLogger(__name__)
 def verify_session():
     """Verify admin session"""
     try:
+        from models import AdminUser
+        
         admin_id = session.get('admin_id')
         if admin_id:
             admin = AdminUser.query.filter_by(id=admin_id, is_active=True).first()

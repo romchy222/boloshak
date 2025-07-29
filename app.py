@@ -72,9 +72,15 @@ def create_app():
         # Создание всех таблиц в базе данных
         db.create_all()
 
-        # Инициализация начальных данных
-        from setup_db import init_default_data
-        init_default_data()
+        # Инициализация начальных данных с задержкой
+        # Commented out for now to avoid circular imports
+        # try:
+        #     from setup_db import init_default_data
+        #     init_default_data()
+        # except Exception as e:
+        #     import logging
+        #     logger = logging.getLogger(__name__)
+        #     logger.error(f"Error initializing default data: {e}")
 
     return app
 
