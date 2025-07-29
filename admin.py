@@ -1,13 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from werkzeug.utils import secure_filename
-from models import Category, FAQ, UserQuery, AdminUser, Document, WebSource, KnowledgeBase
-from app import db
 from datetime import datetime, timedelta
 from sqlalchemy import func
 import logging
 import os
 import mimetypes
-from document_processor import DocumentProcessor, WebScraper, KnowledgeBaseUpdater
 
 admin_bp = Blueprint('admin', __name__)
 logger = logging.getLogger(__name__)
@@ -27,6 +24,10 @@ def admin_required(f):
 def dashboard():
     """Admin dashboard with statistics"""
     try:
+        # Import here to avoid circular imports
+        from models import UserQuery, FAQ, Category, Document, WebSource, KnowledgeBase
+        from app import db
+        
         # Get basic statistics
         total_queries = UserQuery.query.count()
         total_faqs = FAQ.query.filter_by(is_active=True).count()
@@ -486,3 +487,140 @@ def logout():
     session.pop('admin_id', None)
     flash('Вы успешно вышли из системы', 'info')
     return redirect(url_for('admin.login'))
+
+
+@admin_bp.route('/api/analytics/agents')
+@admin_required
+def agent_analytics():
+    """Get agent usage analytics"""
+    try:
+        # Get agent usage statistics
+        agent_stats = db.session.query(
+            UserQuery.agent_type,
+            UserQuery.agent_name,
+            func.count(UserQuery.id).label('total_queries'),
+            func.avg(UserQuery.response_time).label('avg_response_time'),
+            func.avg(UserQuery.agent_confidence).label('avg_confidence')
+        ).filter(
+            UserQuery.agent_type.isnot(None)
+        ).group_by(
+            UserQuery.agent_type, UserQuery.agent_name
+        ).all()
+        
+        # Get language distribution by agent
+        language_stats = db.session.query(
+            UserQuery.agent_type,
+            UserQuery.language,
+            func.count(UserQuery.id).label('count')
+        ).filter(
+            UserQuery.agent_type.isnot(None)
+        ).group_by(
+            UserQuery.agent_type, UserQuery.language
+        ).all()
+        
+        # Get daily usage for the last 30 days
+        from datetime import datetime, timedelta
+        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+        
+        daily_stats = db.session.query(
+            func.date(UserQuery.created_at).label('date'),
+            UserQuery.agent_type,
+            func.count(UserQuery.id).label('count')
+        ).filter(
+            UserQuery.created_at >= thirty_days_ago,
+            UserQuery.agent_type.isnot(None)
+        ).group_by(
+            func.date(UserQuery.created_at), UserQuery.agent_type
+        ).all()
+        
+        # Format data for frontend
+        result = {
+            'agent_stats': [
+                {
+                    'agent_type': stat.agent_type,
+                    'agent_name': stat.agent_name,
+                    'total_queries': stat.total_queries,
+                    'avg_response_time': round(stat.avg_response_time or 0, 2),
+                    'avg_confidence': round(stat.avg_confidence or 0, 2)
+                }
+                for stat in agent_stats
+            ],
+            'language_stats': [
+                {
+                    'agent_type': stat.agent_type,
+                    'language': stat.language,
+                    'count': stat.count
+                }
+                for stat in language_stats
+            ],
+            'daily_stats': [
+                {
+                    'date': stat.date.isoformat(),
+                    'agent_type': stat.agent_type,
+                    'count': stat.count
+                }
+                for stat in daily_stats
+            ]
+        }
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Error getting agent analytics: {str(e)}")
+        return jsonify({'error': 'Failed to get analytics data'}), 500
+
+
+@admin_bp.route('/api/analytics/summary')
+@admin_required
+def analytics_summary():
+    """Get summary analytics for dashboard"""
+    try:
+        # Get total queries by agent
+        agent_totals = db.session.query(
+            UserQuery.agent_type,
+            UserQuery.agent_name,
+            func.count(UserQuery.id).label('total')
+        ).filter(
+            UserQuery.agent_type.isnot(None)
+        ).group_by(
+            UserQuery.agent_type, UserQuery.agent_name
+        ).all()
+        
+        # Get success rate (queries with high confidence)
+        success_stats = db.session.query(
+            UserQuery.agent_type,
+            func.count(UserQuery.id).label('total'),
+            func.count(
+                db.case((UserQuery.agent_confidence >= 0.5, 1))
+            ).label('successful')
+        ).filter(
+            UserQuery.agent_type.isnot(None)
+        ).group_by(
+            UserQuery.agent_type
+        ).all()
+        
+        result = {
+            'agent_totals': [
+                {
+                    'agent_type': stat.agent_type,
+                    'agent_name': stat.agent_name,
+                    'total': stat.total
+                }
+                for stat in agent_totals
+            ],
+            'success_rates': [
+                {
+                    'agent_type': stat.agent_type,
+                    'total': stat.total,
+                    'successful': stat.successful,
+                    'success_rate': round((stat.successful / stat.total * 100) if stat.total > 0 else 0, 1)
+                }
+                for stat in success_stats
+            ]
+        }
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Error getting analytics summary: {str(e)}")
+        return jsonify({'error': 'Failed to get summary data'}), 500

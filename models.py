@@ -62,6 +62,13 @@ class UserQuery(db.Model):
     bot_response = db.Column(db.Text, nullable=False)
     language = db.Column(db.String(5), nullable=False, default='ru')
     response_time = db.Column(db.Float)  # Response time in seconds
+    
+    # Agent tracking fields
+    agent_type = db.Column(db.String(50))  # Type of agent that handled the query
+    agent_name = db.Column(db.String(100))  # Name of the agent
+    agent_confidence = db.Column(db.Float)  # Confidence score of the selected agent
+    context_used = db.Column(db.Boolean, default=False)  # Whether FAQ context was used
+    
     session_id = db.Column(db.String(100))
     ip_address = db.Column(db.String(45))
     user_agent = db.Column(db.String(500))
