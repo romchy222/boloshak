@@ -71,17 +71,24 @@ class MistralClient:
                 return result['choices'][0]['message']['content'].strip()
             else:
                 logger.error(f"Mistral API error: {response.status_code} - {response.text}")
-                return self._get_fallback_response(language)
+                return self._get_fallback_response(language, context)
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Request error to Mistral API: {str(e)}")
-            return self._get_fallback_response(language)
+            return self._get_fallback_response(language, context)
         except Exception as e:
             logger.error(f"Unexpected error in Mistral client: {str(e)}")
-            return self._get_fallback_response(language)
+            return self._get_fallback_response(language, context)
 
-    def _get_fallback_response(self, language: str = "ru") -> str:
+    def _get_fallback_response(self, language: str = "ru", context: str = "") -> str:
         """Get fallback response when API is unavailable"""
+        # If we have context from FAQ, try to provide a basic response
+        if context and len(context.strip()) > 50:
+            if language == 'kz':
+                return f"Мен уақытша шектеулі режимде жұмыс істеп жатырмын, бірақ ақпарат базасынан табылған ақпарат:\n\n{context}\n\nТолық көмек үшін қабылдау комиссиясына хабарласыңыз."
+            else:
+                return f"Я работаю в ограниченном режиме, но вот что я нашел в базе знаний:\n\n{context}\n\nДля полной консультации обратитесь в приемную комиссию."
+        
         fallback_responses = {
             'ru': "Извините, я временно недоступен. Пожалуйста, обратитесь в приемную комиссию университета по телефону или электронной почте.",
             'kz': "Кешіріңіз, мен уақытша қолжетімсізбін. Университеттің қабылдау комиссиясына телефон немесе электрондық пошта арқылы хабарласыңыз."

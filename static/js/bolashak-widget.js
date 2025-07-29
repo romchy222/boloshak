@@ -5,7 +5,7 @@
     'use strict';
 
     const WIDGET_CONFIG = {
-        apiEndpoint: window.BOLASHAK_API_URL || 'https://528fd662-4a57-4316-8325-61e34f1cc119-00-ui921zil405v.janeway.replit.dev',
+        apiEndpoint: window.BOLASHAK_API_URL || 'http://localhost:5000',
         position: 'bottom-right',
         language: 'ru',
         title: 'QabyldauBot',

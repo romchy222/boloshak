@@ -33,6 +33,12 @@ def widget_demo():
     return render_template('widget-demo.html')
 
 
+@main_bp.route('/widget-test')
+def widget_test():
+    """Widget test page for development"""
+    return render_template('widget-test.html')
+
+
 @main_bp.route('/api/chat', methods=['POST'])
 def chat():
     """Handle chat messages from the frontend"""
