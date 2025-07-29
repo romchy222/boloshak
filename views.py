@@ -41,35 +41,44 @@ def widget_demo():
 
 @main_bp.route('/api/chat', methods=['POST'])
 def chat():
-    """Handle chat messages from the frontend using multi-agent architecture"""
     try:
-        # Import here to avoid circular imports
         from models import UserQuery
         from app import db
         from flask import current_app
-        
+
         data = request.get_json()
         if not data or 'message' not in data:
             return jsonify({'error': 'Сообщение не найдено'}), 400
 
         user_message = data['message'].strip()
         language = data.get('language', 'ru')
+        agent_type = data.get('agent_type')  # <-- добавлено
 
         if not user_message:
             return jsonify({'error': 'Пустое сообщение'}), 400
 
-        # Record start time for performance tracking
         start_time = time.time()
 
-        # Initialize and route message to appropriate agent within app context
         with current_app.app_context():
             router = initialize_agent_router()
-            result = router.route_message(user_message, language)
-            
-            # Calculate response time
+            if agent_type:
+                # Поиск агента с нужным типом
+                for agent in router.agents:
+                    if getattr(agent, "agent_type", None) and (agent.agent_type.value == agent_type):
+                        result = agent.process_message(user_message, language)
+                        result['agent_type'] = agent.agent_type.value
+                        result['agent_name'] = agent.name
+                        result['confidence'] = 1.0
+                        break
+                else:
+                    # Если не найден — fallback на авто-выбор
+                    result = router.route_message(user_message, language)
+            else:
+                # Автоматический выбор агента
+                result = router.route_message(user_message, language)
+
             response_time = time.time() - start_time
 
-            # Log the interaction with agent information
             user_query = UserQuery(
                 user_message=user_message,
                 bot_response=result['response'],
@@ -106,8 +115,7 @@ def chat():
         logger.error(f"Error in chat endpoint: {str(e)}")
         error_message = "Извините, произошла ошибка. Попробуйте еще раз." if language == 'ru' else "Кешіріңіз, қате орын алды. Қайталап көріңіз."
         return jsonify({'error': error_message}), 500
-
-
+        
 @main_bp.route('/api/health')
 def health_check():
     """Health check endpoint"""

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <title>BLACKBOXAI</title>
@@ -17,9 +17,15 @@
     <div class="bbx-content">
       <h1 class="bbx-title">Ask Blackbox AI Anything</h1>
       <div class="bbx-centerbox">
+        <div class="bbx-agent-select-row">
+          <select class="bbx-agent-select">
+            <option value="">Автоматический выбор агента</option>
+          </select>
+        </div>
+        <div class="bbx-messages"></div>
         <div class="bbx-chatbox">
-          <input type="text" class="bbx-input" placeholder="Message Blackbox or @mention agent">
-          <button class="bbx-send"><span>&uarr;</span></button>
+          <input type="text" class="bbx-input" placeholder="Message Blackbox or @mention agent" autocomplete="off">
+          <button class="bbx-send" type="button" title="Send"><span>&uarr;</span></button>
         </div>
         <div class="bbx-row bbx-tools">
           <span class="bbx-tool"><span class="bbx-ico">&#127760;</span>Auto</span>
